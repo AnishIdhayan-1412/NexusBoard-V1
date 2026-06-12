@@ -170,6 +170,7 @@ if not DEBUG:
     CSRF_COOKIE_HTTPONLY = True
     CSRF_COOKIE_SAMESITE = 'Lax'
     X_FRAME_OPTIONS = 'DENY'
+    CSRF_TRUSTED_ORIGINS = [f'https://{host.strip()}' for host in ALLOWED_HOSTS if host.strip() and not host.startswith('.')]
 
 # ── Rate limiting ─────────────────────────────────────────────────────────────
 RATELIMIT_USE_CACHE = 'default'
