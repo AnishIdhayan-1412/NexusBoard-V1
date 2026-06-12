@@ -4,62 +4,38 @@
 <div class="row g-3">
   <div class="col-lg-8">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h4 class="mb-0">🌐 All Communities</h4>
+      <h4 class="mb-0">All Communities</h4>
       {% if user.is_authenticated %}
-      <a href="{% url 'communities:create' %}" class="btn btn-primary btn-sm"><i class="bi bi-plus me-1"></i>Create Community</a>
+      <a href="{% url 'communities:create' %}" class="btn btn-primary btn-sm"><i class="bi bi-plus me-1"></i>Create</a>
       {% endif %}
     </div>
-    <div class="row g-3">
-      {% for community in communities %}
-      <div class="col-md-6">
-        <div class="card card-hover h-100">
-          <div class="card-body">
-            {% if community.banner %}
-            <img src="{{ community.banner.url }}" alt="" class="img-fluid rounded mb-2" style="height:80px;width:100%;object-fit:cover">
-            {% endif %}
-            <div class="d-flex align-items-center gap-2 mb-2">
-              <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--nb-primary),var(--nb-accent));display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">
-                {{ community.name.0|upper }}
-              </div>
-              <div>
-                <a href="{% url 'communities:detail' community.slug %}" class="post-title-link" style="font-size:.95rem">c/{{ community.name }}</a>
-                <div class="text-muted" style="font-size:.75rem">{{ community.member_count }} members · {{ community.post_count }} posts</div>
-              </div>
-            </div>
-            <p class="text-muted mb-2" style="font-size:.84rem">{{ community.description|truncatechars:100 }}</p>
-            {% if user.is_authenticated %}
-            <a href="{% url 'communities:join' community.slug %}" class="btn btn-outline-primary btn-sm">Join</a>
-            {% endif %}
+    {% for community in page_obj %}
+    <div class="card card-hover mb-2" onclick="window.location='{% url 'communities:detail' community.slug %}'">
+      <div class="card-body py-3">
+        <div class="d-flex align-items-center gap-3">
+          {% if community.icon %}
+          <img src="{{ community.icon.url }}" alt="" class="rounded-circle" style="width:48px;height:48px;object-fit:cover">
+          {% else %}
+          <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:48px;height:48px;background:rgba(99,102,241,0.15);font-size:1.4rem">🌐</div>
+          {% endif %}
+          <div class="flex-grow-1">
+            <h6 class="mb-0"><a href="{% url 'communities:detail' community.slug %}" class="post-title-link" onclick="event.stopPropagation()">c/{{ community.name }}</a></h6>
+            <p class="text-muted mb-0" style="font-size:.85rem">{{ community.description|truncatechars:120 }}</p>
+          </div>
+          <div class="text-end text-muted" style="font-size:.8rem;min-width:70px">
+            <div><strong>{{ community.member_count }}</strong> members</div>
+            <div>{{ community.post_count }} posts</div>
           </div>
         </div>
       </div>
-      {% empty %}
-      <div class="col-12">
-        <div class="card">
-          <div class="card-body text-center py-5">
-            <div style="font-size:3rem;opacity:.3">🏘️</div>
-            <h5 class="text-muted mt-2">No communities yet</h5>
-            {% if user.is_authenticated %}
-            <a href="{% url 'communities:create' %}" class="btn btn-primary mt-2">Create First Community</a>
-            {% else %}
-            <a href="{% url 'accounts:register' %}" class="btn btn-primary mt-2">Sign up to create one</a>
-            {% endif %}
-          </div>
-        </div>
-      </div>
-      {% endfor %}
     </div>
-  </div>
-  <div class="col-lg-4">
-    <div class="sidebar-widget">
-      <h6>💡 Community Guidelines</h6>
-      <ul style="font-size:.85rem;color:var(--nb-text-muted);padding-left:1.2rem;margin:0">
-        <li class="mb-1">Be respectful and constructive</li>
-        <li class="mb-1">Share relevant, quality content</li>
-        <li class="mb-1">Follow each community's rules</li>
-        <li>No spam or self-promotion</li>
-      </ul>
-    </div>
+    {% empty %}
+    <div class="card"><div class="card-body text-center py-5">
+      <h5 class="text-muted">No communities yet</h5>
+      <a href="{% url 'communities:create' %}" class="btn btn-primary mt-2">Create the first one!</a>
+    </div></div>
+    {% endfor %}
+    {% include 'includes/pagination.html' %}
   </div>
 </div>
 {% endblock %}

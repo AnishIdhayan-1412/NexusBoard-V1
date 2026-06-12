@@ -11,10 +11,10 @@
           <div class="d-flex flex-column align-items-center gap-1 pt-1" style="min-width:40px">
             {% if user.is_authenticated %}
             <button class="vote-btn {% if user_vote == 1 %}up-active{% endif %}" onclick="vote({{ post.pk }}, 1)" id="up-btn"><i class="bi bi-arrow-up-circle-fill"></i></button>
-            <span class="vote-score" id="vote-score">{{ post.vote_score }}</span>
+            <span class="vote-score" id="vote-score">{{ post.score }}</span>
             <button class="vote-btn {% if user_vote == -1 %}down-active{% endif %}" onclick="vote({{ post.pk }}, -1)" id="down-btn"><i class="bi bi-arrow-down-circle-fill"></i></button>
             {% else %}
-            <span class="vote-score">{{ post.vote_score }}</span>
+            <span class="vote-score">{{ post.score }}</span>
             {% endif %}
           </div>
           <!-- Content -->
