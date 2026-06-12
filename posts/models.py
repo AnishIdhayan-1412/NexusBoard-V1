@@ -1,6 +1,10 @@
+import logging
 from django.db import models
+from django.db.models import F
 from django.urls import reverse
 from django.conf import settings
+
+logger = logging.getLogger('nexusboard')
 
 
 class Post(models.Model):
@@ -9,11 +13,11 @@ class Post(models.Model):
         ('link', 'Link'),
         ('image', 'Image'),
     ]
-    title = models.CharField(max_length=300)
+    title = models.CharField(max_length=300, db_index=True)
     body = models.TextField(blank=True)
     url = models.URLField(blank=True)
     image = models.ImageField(upload_to='post_images/', blank=True, null=True)
-    post_type = models.CharField(max_length=10, choices=POST_TYPES, default='text')
+    post_type = models.CharField(max_length=10, choices=POST_TYPES, default='text', db_index=True)
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -24,35 +28,54 @@ class Post(models.Model):
         on_delete=models.CASCADE,
         related_name='posts'
     )
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
-    is_pinned = models.BooleanField(default=False)
+    is_pinned = models.BooleanField(default=False, db_index=True)
     is_locked = models.BooleanField(default=False)
     upvotes = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
         through='Vote',
         related_name='voted_posts'
     )
+    # Cached counters — updated atomically on vote/comment actions
+    score = models.IntegerField(default=0, db_index=True)
+    comment_count = models.PositiveIntegerField(default=0)
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['-is_pinned', '-created_at']
+        indexes = [
+            models.Index(fields=['community', '-created_at']),
+            models.Index(fields=['author', '-created_at']),
+            models.Index(fields=['-score', '-created_at']),
+        ]
 
     def get_absolute_url(self):
         return reverse('posts:detail', kwargs={'pk': self.pk})
 
     @property
     def vote_score(self):
-        ups = self.vote_set.filter(value=1).count()
-        downs = self.vote_set.filter(value=-1).count()
-        return ups - downs
-
-    @property
-    def comment_count(self):
-        return self.comments.filter(parent=None).count()
+        """Use cached score field; falls back to DB count if needed."""
+        return self.score
 
     @property
     def total_comment_count(self):
         return self.comments.count()
+
+    def update_score(self):
+        """Recalculate and persist score atomically."""
+        from django.db.models import Sum, Case, When, IntegerField
+        result = self.vote_set.aggregate(
+            total=Sum(
+                Case(
+                    When(value=1, then=1),
+                    When(value=-1, then=-1),
+                    default=0,
+                    output_field=IntegerField()
+                )
+            )
+        )['total'] or 0
+        Post.objects.filter(pk=self.pk).update(score=result)
+        self.score = result
 
     def __str__(self):
         return self.title
@@ -66,6 +89,9 @@ class Vote(models.Model):
 
     class Meta:
         unique_together = ('user', 'post')
+        indexes = [
+            models.Index(fields=['post', 'value']),
+        ]
 
     def __str__(self):
         return f"{self.user} {'↑' if self.value == 1 else '↓'} {self.post}"
@@ -73,21 +99,43 @@ class Vote(models.Model):
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='comments')
-    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='comments'
+    )
+    parent = models.ForeignKey(
+        'self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies'
+    )
     body = models.TextField(max_length=5000)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_deleted = models.BooleanField(default=False)
+    # Cached vote score
+    score = models.IntegerField(default=0)
 
     class Meta:
         ordering = ['created_at']
+        indexes = [
+            models.Index(fields=['post', 'parent', 'created_at']),
+        ]
 
     @property
     def vote_score(self):
-        ups = self.comment_votes.filter(value=1).count()
-        downs = self.comment_votes.filter(value=-1).count()
-        return ups - downs
+        return self.score
+
+    def update_score(self):
+        from django.db.models import Sum, Case, When, IntegerField
+        result = self.comment_votes.aggregate(
+            total=Sum(
+                Case(
+                    When(value=1, then=1),
+                    When(value=-1, then=-1),
+                    default=0,
+                    output_field=IntegerField()
+                )
+            )
+        )['total'] or 0
+        Comment.objects.filter(pk=self.pk).update(score=result)
+        self.score = result
 
     def __str__(self):
         return f"Comment by {self.author} on {self.post}"

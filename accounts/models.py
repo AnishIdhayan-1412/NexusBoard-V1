@@ -8,7 +8,7 @@ class User(AbstractUser):
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
     website = models.URLField(blank=True)
     location = models.CharField(max_length=100, blank=True)
-    reputation = models.IntegerField(default=0)
+    reputation = models.IntegerField(default=0, db_index=True)
     joined_communities = models.ManyToManyField(
         'communities.Community',
         through='communities.Membership',
@@ -23,6 +23,10 @@ class User(AbstractUser):
 
     class Meta:
         verbose_name = 'User'
+        indexes = [
+            models.Index(fields=['username']),
+            models.Index(fields=['-reputation']),
+        ]
 
     def get_absolute_url(self):
         return reverse('accounts:profile', kwargs={'username': self.username})
@@ -39,6 +43,11 @@ class User(AbstractUser):
     @property
     def following_count(self):
         return self.following.count()
+
+    def adjust_reputation(self, delta: int):
+        """Atomically adjust reputation — never call user.reputation += delta."""
+        User.objects.filter(pk=self.pk).update(reputation=models.F('reputation') + delta)
+        self.reputation += delta
 
     def __str__(self):
         return self.username

@@ -1,11 +1,9 @@
-# Railway deployment configuration
-# This tells Railway how to build and run your app
-
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
+startCommand = "gunicorn nexusboard.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --threads 2 --timeout 60"
 healthcheckPath = "/health/"
 healthcheckTimeout = 30
 restartPolicyType = "ON_FAILURE"

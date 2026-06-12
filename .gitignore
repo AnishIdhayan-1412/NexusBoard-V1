@@ -1,16 +1,12 @@
 # Python
 __pycache__/
 *.py[cod]
-*$py.class
-*.pyc
 *.pyo
 *.pyd
-.Python
-env/
-venv/
-.venv/
-pip-log.txt
-pip-delete-this-directory.txt
+*.egg-info/
+dist/
+build/
+*.egg
 
 # Django
 *.log
@@ -20,37 +16,21 @@ db.sqlite3-journal
 media/
 staticfiles/
 logs/
+cache_ratelimit/
 
-# Environment
+# Env
 .env
-.env.local
-.env.production
-*.env
-
-# Docker
-.docker/
+.env.*
+!.env.example
 
 # OS
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 
-# IDE
+# IDEs
 .vscode/
 .idea/
 *.swp
-*.swo
 
-# Coverage
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
+# Docker
+*.override.yml
