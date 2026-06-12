@@ -37,7 +37,7 @@ services:
     environment:
       POSTGRES_DB: nexusboard
       POSTGRES_USER: nexus
-      POSTGRES_PASSWORD: nexuspass
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-nexuspass}
     ports:
       - "5432:5432"
     healthcheck:
