@@ -38,11 +38,11 @@ class User(AbstractUser):
 
     @property
     def follower_count(self):
-        return self.followers.count()
+        return self.followed_by_set.count()
 
     @property
     def following_count(self):
-        return self.following.count()
+        return self.follow_set.count()
 
     def adjust_reputation(self, delta: int):
         """Atomically adjust reputation — never call user.reputation += delta."""
