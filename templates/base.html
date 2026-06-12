@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}NexusBoard{% endblock %} – Where Ideas Connect</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  {% load static %}
+  <style>
+    :root { --nb-primary: #6366f1; --nb-primary-dark: #4f46e5; --nb-accent: #22d3ee; --nb-surface: #1e1e2e; --nb-surface-2: #2a2a3e; --nb-border: rgba(255,255,255,0.08); --nb-text-muted: #94a3b8; }
+    body { background: #13131f; color: #e2e8f0; font-family: system-ui, -apple-system, sans-serif; min-height: 100vh; }
+    .navbar { background: var(--nb-surface) !important; border-bottom: 1px solid var(--nb-border); }
+    .navbar-brand { font-weight: 800; font-size: 1.4rem; background: linear-gradient(135deg, var(--nb-primary), var(--nb-accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .card { background: var(--nb-surface); border: 1px solid var(--nb-border); border-radius: 12px; }
+    .card-hover { transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; }
+    .card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(99,102,241,0.15); }
+    .btn-primary { background: var(--nb-primary); border-color: var(--nb-primary); font-weight: 600; }
+    .btn-primary:hover { background: var(--nb-primary-dark); border-color: var(--nb-primary-dark); }
+    .btn-outline-primary { color: var(--nb-primary); border-color: var(--nb-primary); }
+    .btn-outline-primary:hover { background: var(--nb-primary); color: white; }
+    .form-control, .form-select { background: var(--nb-surface-2); border: 1px solid var(--nb-border); color: #e2e8f0; border-radius: 8px; }
+    .form-control:focus, .form-select:focus { background: var(--nb-surface-2); border-color: var(--nb-primary); color: #e2e8f0; box-shadow: 0 0 0 0.2rem rgba(99,102,241,0.25); }
+    .form-control::placeholder { color: var(--nb-text-muted); }
+    .vote-btn { background: none; border: none; color: var(--nb-text-muted); transition: color 0.15s; font-size: 1.1rem; padding: 2px 6px; }
+    .vote-btn:hover { color: var(--nb-primary); }
+    .vote-btn.up-active { color: var(--nb-primary); }
+    .vote-btn.down-active { color: #ef4444; }
+    .vote-score { font-weight: 700; font-size: 0.9rem; color: #e2e8f0; min-width: 28px; text-align: center; }
+    .sidebar-widget { background: var(--nb-surface); border: 1px solid var(--nb-border); border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
+    .sidebar-widget h6 { color: var(--nb-text-muted); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.1em; font-weight: 700; margin-bottom: 0.75rem; }
+    .community-link { display: flex; align-items: center; gap: 8px; padding: 6px 0; text-decoration: none; color: #e2e8f0; transition: color 0.15s; }
+    .community-link:hover { color: var(--nb-primary); }
+    .community-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--nb-primary); flex-shrink: 0; }
+    .post-meta { font-size: 0.82rem; color: var(--nb-text-muted); }
+    .post-meta a { color: var(--nb-text-muted); text-decoration: none; }
+    .post-meta a:hover { color: var(--nb-primary); }
+    .comment-card { background: var(--nb-surface-2); border: 1px solid var(--nb-border); border-radius: 10px; padding: 1rem; margin-bottom: 0.75rem; }
+    .reply-indent { margin-left: 2rem; border-left: 3px solid rgba(99,102,241,0.4); padding-left: 1rem; }
+    .user-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+    .user-avatar-lg { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; }
+    .badge-comm { background: rgba(99,102,241,0.2); color: var(--nb-primary); border: 1px solid rgba(99,102,241,0.3); border-radius: 20px; padding: 2px 10px; font-size: 0.75rem; font-weight: 600; text-decoration: none; display: inline-block; }
+    .badge-comm:hover { background: rgba(99,102,241,0.35); color: var(--nb-primary); }
+    .nav-link { color: var(--nb-text-muted) !important; font-weight: 500; }
+    .nav-link:hover { color: #e2e8f0 !important; }
+    .dropdown-menu { background: var(--nb-surface-2); border: 1px solid var(--nb-border); }
+    .dropdown-item { color: #e2e8f0; }
+    .dropdown-item:hover { background: rgba(99,102,241,0.15); color: #fff; }
+    hr { border-color: var(--nb-border); opacity: 1; }
+    .text-primary { color: var(--nb-primary) !important; }
+    .text-muted { color: var(--nb-text-muted) !important; }
+    .alert { border-radius: 10px; border: none; }
+    .post-title-link { color: #e2e8f0; text-decoration: none; font-weight: 600; }
+    .post-title-link:hover { color: var(--nb-primary); }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg sticky-top">
+  <div class="container-xl">
+    <a class="navbar-brand" href="{% url 'core:home' %}">⬡ NexusBoard</a>
+    <button class="navbar-toggler border-0 text-light" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <i class="bi bi-list fs-4"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <form class="d-flex mx-auto my-2 my-lg-0" style="width:300px" action="{% url 'core:search' %}">
+        <input class="form-control" type="search" name="q" placeholder="Search..." value="{{ request.GET.q }}" style="border-radius:25px;padding:.4rem 1.2rem">
+      </form>
+      <ul class="navbar-nav ms-auto align-items-center gap-1">
+        <li class="nav-item"><a class="nav-link" href="{% url 'communities:list' %}"><i class="bi bi-grid me-1"></i>Communities</a></li>
+        {% if user.is_authenticated %}
+        <li class="nav-item ms-2"><a class="btn btn-primary btn-sm" href="{% url 'posts:create' %}"><i class="bi bi-plus-lg me-1"></i>Post</a></li>
+        <li class="nav-item dropdown ms-2">
+          <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" data-bs-toggle="dropdown">
+            <img src="{{ user.get_avatar_url }}" alt="" style="width:28px;height:28px;border-radius:50%;object-fit:cover">
+            {{ user.username }}
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="{% url 'accounts:profile' user.username %}"><i class="bi bi-person me-2"></i>Profile</a></li>
+            <li><a class="dropdown-item" href="{% url 'accounts:edit_profile' %}"><i class="bi bi-gear me-2"></i>Settings</a></li>
+            <li><hr class="dropdown-divider" style="border-color:var(--nb-border)"></li>
+            <li>
+              <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}
+                <button class="dropdown-item text-danger" type="submit"><i class="bi bi-box-arrow-right me-2"></i>Logout</button>
+              </form>
+            </li>
+          </ul>
+        </li>
+        {% else %}
+        <li class="nav-item ms-2"><a class="btn btn-outline-primary btn-sm" href="{% url 'accounts:login' %}">Login</a></li>
+        <li class="nav-item ms-1"><a class="btn btn-primary btn-sm" href="{% url 'accounts:register' %}">Sign Up</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container-xl py-3">
+  {% for message in messages %}
+  <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'info' }}{% endif %} alert-dismissible fade show" role="alert">
+    {{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  {% endfor %}
+  {% block content %}{% endblock %}
+</div>
+
+<footer class="mt-5 py-4" style="background:var(--nb-surface);border-top:1px solid var(--nb-border)">
+  <div class="container-xl d-flex flex-wrap justify-content-between align-items-center">
+    <span class="text-muted" style="font-size:.85rem">⬡ NexusBoard — Where Ideas Connect</span>
+    <div class="d-flex gap-3" style="font-size:.85rem">
+      <a href="{% url 'core:about' %}" class="text-muted text-decoration-none">About</a>
+      <a href="{% url 'core:health' %}" class="text-muted text-decoration-none">Health</a>
+      <a href="{% url 'communities:list' %}" class="text-muted text-decoration-none">Communities</a>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Create Post{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card p-4">
+      <h5 class="mb-4"><i class="bi bi-pencil-square me-2"></i>Create Post</h5>
+      {% if not user.joined_communities.exists %}
+      <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        You need to join a community before posting. <a href="{% url 'communities:list' %}">Browse Communities</a>
+      </div>
+      {% endif %}
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label text-muted" style="font-size:.85rem;font-weight:600">COMMUNITY</label>
+          {{ form.community }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label text-muted" style="font-size:.85rem;font-weight:600">POST TYPE</label>
+          {{ form.post_type }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label text-muted" style="font-size:.85rem;font-weight:600">TITLE</label>
+          {{ form.title }}
+        </div>
+        <div id="body-section" class="mb-3">
+          <label class="form-label text-muted" style="font-size:.85rem;font-weight:600">BODY (Optional)</label>
+          {{ form.body }}
+        </div>
+        <div id="url-section" class="mb-3" style="display:none">
+          <label class="form-label text-muted" style="font-size:.85rem;font-weight:600">URL</label>
+          {{ form.url }}
+        </div>
+        <div id="image-section" class="mb-3" style="display:none">
+          <label class="form-label text-muted" style="font-size:.85rem;font-weight:600">IMAGE</label>
+          {{ form.image }}
+        </div>
+        {% for field in form %}{% if field.errors %}
+        <div class="text-danger" style="font-size:.82rem">{{ field.label }}: {{ field.errors.0 }}</div>
+        {% endif %}{% endfor %}
+        <div class="d-flex gap-2 mt-4">
+          <button type="submit" class="btn btn-primary px-4">Submit Post</button>
+          <a href="{% url 'core:home' %}" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+document.getElementById('id_post_type').addEventListener('change', function() {
+  const type = this.value;
+  document.getElementById('body-section').style.display = type === 'text' ? 'block' : 'none';
+  document.getElementById('url-section').style.display = type === 'link' ? 'block' : 'none';
+  document.getElementById('image-section').style.display = type === 'image' ? 'block' : 'none';
+});
+</script>
+{% endblock %}

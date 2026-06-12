@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<div class="row g-3">
+  <!-- Feed -->
+  <div class="col-lg-8">
+    {% if user.is_authenticated and not user.joined_communities.exists %}
+    <div class="card mb-3" style="border:1px solid rgba(99,102,241,0.4);background:rgba(99,102,241,0.08)">
+      <div class="card-body d-flex align-items-center gap-3">
+        <div style="font-size:2rem">👋</div>
+        <div>
+          <strong>Welcome to NexusBoard!</strong>
+          <p class="mb-1 text-muted" style="font-size:.9rem">Join some communities to personalize your feed</p>
+          <a href="{% url 'communities:list' %}" class="btn btn-sm btn-primary">Explore Communities</a>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if posts %}
+      {% for post in posts %}
+      <div class="card card-hover mb-2" onclick="window.location='{% url 'posts:detail' post.pk %}'">
+        <div class="card-body py-3">
+          <div class="d-flex gap-3">
+            <!-- Vote column -->
+            <div class="d-flex flex-column align-items-center gap-1 pt-1" style="min-width:36px">
+              <span class="vote-score" id="score-{{ post.pk }}">{{ post.vote_score }}</span>
+              <i class="bi bi-arrow-up-circle text-muted" style="font-size:0.9rem"></i>
+            </div>
+            <!-- Content -->
+            <div class="flex-grow-1">
+              <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                <a href="{% url 'communities:detail' post.community.slug %}" class="badge-comm" onclick="event.stopPropagation()">c/{{ post.community.name }}</a>
+                <span class="post-meta">Posted by <a href="{% url 'accounts:profile' post.author.username %}" onclick="event.stopPropagation()">u/{{ post.author.username }}</a> · {{ post.created_at|timesince }} ago</span>
+              </div>
+              <h6 class="mb-1"><a href="{% url 'posts:detail' post.pk %}" class="post-title-link" onclick="event.stopPropagation()">{{ post.title }}</a></h6>
+              {% if post.body %}<p class="text-muted mb-1" style="font-size:.88rem">{{ post.body|truncatechars:200 }}</p>{% endif %}
+              {% if post.image %}<img src="{{ post.image.url }}" alt="" class="img-fluid rounded mb-1" style="max-height:200px;object-fit:cover">{% endif %}
+              <div class="post-meta mt-1">
+                <a href="{% url 'posts:detail' post.pk %}" onclick="event.stopPropagation()"><i class="bi bi-chat me-1"></i>{{ post.total_comment_count }} comments</a>
+                {% if post.post_type == 'link' and post.url %}
+                <a href="{{ post.url }}" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="ms-3"><i class="bi bi-link-45deg me-1"></i>Link</a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+    <div class="card">
+      <div class="card-body text-center py-5">
+        <div style="font-size:3rem;opacity:.3">📭</div>
+        <h5 class="text-muted mt-2">No posts yet</h5>
+        {% if user.is_authenticated %}
+        <a href="{% url 'posts:create' %}" class="btn btn-primary mt-2">Create First Post</a>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Sidebar -->
+  <div class="col-lg-4">
+    {% if user.is_authenticated %}
+    <div class="sidebar-widget">
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <img src="{{ user.get_avatar_url }}" alt="" class="user-avatar">
+        <div>
+          <strong>{{ user.username }}</strong>
+          <div class="text-muted" style="font-size:.8rem">{{ user.reputation }} reputation</div>
+        </div>
+      </div>
+      <div class="d-flex gap-2">
+        <a href="{% url 'posts:create' %}" class="btn btn-primary btn-sm flex-fill"><i class="bi bi-plus me-1"></i>New Post</a>
+        <a href="{% url 'communities:create' %}" class="btn btn-outline-primary btn-sm flex-fill">Create Community</a>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="sidebar-widget">
+      <h6>🔥 Trending Communities</h6>
+      {% for community in trending_communities %}
+      <a href="{% url 'communities:detail' community.slug %}" class="community-link">
+        <span class="community-dot"></span>
+        <span class="flex-grow-1">c/{{ community.name }}</span>
+        <span class="text-muted" style="font-size:.75rem">{{ community.num_posts }} posts</span>
+      </a>
+      {% empty %}
+      <p class="text-muted mb-0" style="font-size:.85rem">No communities yet. <a href="{% url 'communities:create' %}">Create one!</a></p>
+      {% endfor %}
+    </div>
+
+    <div class="sidebar-widget">
+      <h6>ℹ️ About NexusBoard</h6>
+      <p class="text-muted mb-0" style="font-size:.85rem">A community platform where ideas connect. Share posts, discuss topics, and build your community.</p>
+      {% if not user.is_authenticated %}
+      <div class="d-flex gap-2 mt-3">
+        <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary btn-sm flex-fill">Login</a>
+        <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-sm flex-fill">Join Free</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

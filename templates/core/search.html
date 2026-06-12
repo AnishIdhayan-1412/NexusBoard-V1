@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Search: {{ query }}{% endblock %}
+{% block content %}
+<h4 class="mb-4">
+  {% if query %}Search results for "<span style="color:var(--nb-primary)">{{ query }}</span>"
+  {% else %}Search NexusBoard{% endif %}
+</h4>
+{% if query %}
+  {% if communities %}
+  <h6 class="text-muted mb-2" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.08em">Communities ({{ communities.count }})</h6>
+  <div class="row g-2 mb-4">
+    {% for c in communities %}
+    <div class="col-md-4">
+      <a href="{% url 'communities:detail' c.slug %}" class="text-decoration-none">
+        <div class="card card-hover py-2 px-3">
+          <strong style="color:var(--nb-primary)">c/{{ c.name }}</strong>
+          <span class="text-muted" style="font-size:.8rem">{{ c.member_count }} members</span>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if posts %}
+  <h6 class="text-muted mb-2" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.08em">Posts ({{ posts.count }})</h6>
+  {% for post in posts %}
+  <div class="card mb-2">
+    <div class="card-body py-3">
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <a href="{% url 'communities:detail' post.community.slug %}" class="badge-comm">c/{{ post.community.name }}</a>
+        <span class="text-muted" style="font-size:.78rem">{{ post.created_at|timesince }} ago</span>
+      </div>
+      <a href="{% url 'posts:detail' post.pk %}" class="post-title-link">{{ post.title }}</a>
+      {% if post.body %}<p class="text-muted mb-0 mt-1" style="font-size:.85rem">{{ post.body|truncatechars:150 }}</p>{% endif %}
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% if not posts and not communities %}
+  <div class="card"><div class="card-body text-center py-5">
+    <div style="font-size:3rem;opacity:.3">🔍</div>
+    <h5 class="text-muted mt-2">No results found</h5>
+    <p class="text-muted" style="font-size:.9rem">Try different keywords</p>
+  </div></div>
+  {% endif %}
+{% else %}
+<div class="card"><div class="card-body text-center py-5">
+  <div style="font-size:3rem;opacity:.3">🔍</div>
+  <h5 class="text-muted mt-2">What are you looking for?</h5>
+  <p class="text-muted" style="font-size:.9rem">Search for posts, communities, and more</p>
+</div></div>
+{% endif %}
+{% endblock %}

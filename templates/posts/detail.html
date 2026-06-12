@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% block title %}{{ post.title }}{% endblock %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-lg-8">
+    <!-- Post Card -->
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="d-flex gap-3">
+          <!-- Votes -->
+          <div class="d-flex flex-column align-items-center gap-1 pt-1" style="min-width:40px">
+            {% if user.is_authenticated %}
+            <button class="vote-btn {% if user_vote == 1 %}up-active{% endif %}" onclick="vote({{ post.pk }}, 1)" id="up-btn"><i class="bi bi-arrow-up-circle-fill"></i></button>
+            <span class="vote-score" id="vote-score">{{ post.vote_score }}</span>
+            <button class="vote-btn {% if user_vote == -1 %}down-active{% endif %}" onclick="vote({{ post.pk }}, -1)" id="down-btn"><i class="bi bi-arrow-down-circle-fill"></i></button>
+            {% else %}
+            <span class="vote-score">{{ post.vote_score }}</span>
+            {% endif %}
+          </div>
+          <!-- Content -->
+          <div class="flex-grow-1">
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+              <a href="{% url 'communities:detail' post.community.slug %}" class="badge-comm">c/{{ post.community.name }}</a>
+              <span class="post-meta">Posted by <a href="{% url 'accounts:profile' post.author.username %}">u/{{ post.author.username }}</a> · {{ post.created_at|timesince }} ago</span>
+            </div>
+            <h4 class="mb-3">{{ post.title }}</h4>
+            {% if post.body %}<p style="line-height:1.7;white-space:pre-wrap">{{ post.body }}</p>{% endif %}
+            {% if post.url %}<a href="{{ post.url }}" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm"><i class="bi bi-link-45deg me-1"></i>Visit Link</a>{% endif %}
+            {% if post.image %}<img src="{{ post.image.url }}" alt="" class="img-fluid rounded mt-2">{% endif %}
+            <div class="d-flex gap-3 mt-3 post-meta">
+              <span><i class="bi bi-chat me-1"></i>{{ post.total_comment_count }} comments</span>
+              {% if user == post.author %}
+              <form method="post" action="{% url 'posts:delete' post.pk %}" class="d-inline" onsubmit="return confirm('Delete this post?')">{% csrf_token %}
+                <button type="submit" class="btn btn-link p-0 text-danger" style="font-size:.82rem"><i class="bi bi-trash me-1"></i>Delete</button>
+              </form>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comment Form -->
+    {% if user.is_authenticated %}
+    <div class="card mb-3">
+      <div class="card-body">
+        <h6 class="mb-3">Add a comment</h6>
+        <form method="post" action="{% url 'posts:add_comment' post.pk %}">
+          {% csrf_token %}
+          {{ comment_form.body }}
+          <button type="submit" class="btn btn-primary btn-sm mt-2">Comment</button>
+        </form>
+      </div>
+    </div>
+    {% else %}
+    <div class="card mb-3">
+      <div class="card-body text-center">
+        <p class="text-muted mb-2">Log in to comment</p>
+        <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-sm">Login</a>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Comments -->
+    <h6 class="text-muted mb-2" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.08em">{{ post.total_comment_count }} Comments</h6>
+    {% for comment in comments %}
+    <div class="comment-card" id="comment-{{ comment.pk }}">
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <img src="{{ comment.author.get_avatar_url }}" alt="" style="width:24px;height:24px;border-radius:50%">
+        <a href="{% url 'accounts:profile' comment.author.username %}" style="font-size:.85rem;font-weight:600;color:var(--nb-primary);text-decoration:none">{{ comment.author.username }}</a>
+        <span class="text-muted" style="font-size:.78rem">{{ comment.created_at|timesince }} ago</span>
+      </div>
+      {% if comment.is_deleted %}
+      <p class="text-muted fst-italic mb-1">[deleted]</p>
+      {% else %}
+      <p class="mb-2" style="white-space:pre-wrap;line-height:1.6">{{ comment.body }}</p>
+      {% endif %}
+      {% if user.is_authenticated and not comment.is_deleted %}
+      <button class="btn btn-link p-0 text-muted" style="font-size:.8rem" onclick="showReplyForm({{ comment.pk }})"><i class="bi bi-reply me-1"></i>Reply</button>
+      <div id="reply-form-{{ comment.pk }}" style="display:none;margin-top:.75rem">
+        <form method="post" action="{% url 'posts:add_comment' post.pk %}">
+          {% csrf_token %}
+          <input type="hidden" name="parent_id" value="{{ comment.pk }}">
+          <textarea name="body" class="form-control mb-2" rows="2" placeholder="Reply..."></textarea>
+          <button type="submit" class="btn btn-primary btn-sm">Reply</button>
+          <button type="button" class="btn btn-link btn-sm text-muted" onclick="hideReplyForm({{ comment.pk }})">Cancel</button>
+        </form>
+      </div>
+      {% endif %}
+
+      <!-- Replies -->
+      {% for reply in comment.replies.all %}
+      <div class="reply-indent mt-2">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <img src="{{ reply.author.get_avatar_url }}" alt="" style="width:20px;height:20px;border-radius:50%">
+          <a href="{% url 'accounts:profile' reply.author.username %}" style="font-size:.82rem;font-weight:600;color:var(--nb-primary);text-decoration:none">{{ reply.author.username }}</a>
+          <span class="text-muted" style="font-size:.75rem">{{ reply.created_at|timesince }} ago</span>
+        </div>
+        <p class="mb-0" style="font-size:.9rem;white-space:pre-wrap">{{ reply.body }}</p>
+      </div>
+      {% endfor %}
+    </div>
+    {% empty %}
+    <div class="card">
+      <div class="card-body text-center py-4">
+        <p class="text-muted mb-0">No comments yet. Be the first!</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Sidebar -->
+  <div class="col-lg-4">
+    <div class="sidebar-widget">
+      <h6>📌 About c/{{ post.community.name }}</h6>
+      <p class="text-muted mb-2" style="font-size:.85rem">{{ post.community.description|truncatechars:150 }}</p>
+      <div class="d-flex justify-content-between text-muted" style="font-size:.82rem">
+        <span>{{ post.community.member_count }} members</span>
+        <span>{{ post.community.post_count }} posts</span>
+      </div>
+      <a href="{% url 'communities:detail' post.community.slug %}" class="btn btn-outline-primary btn-sm w-100 mt-3">Visit Community</a>
+    </div>
+    <div class="sidebar-widget">
+      <h6>👤 About u/{{ post.author.username }}</h6>
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <img src="{{ post.author.get_avatar_url }}" alt="" class="user-avatar">
+        <div>
+          <a href="{% url 'accounts:profile' post.author.username %}" style="color:var(--nb-primary);text-decoration:none;font-weight:600">{{ post.author.username }}</a>
+          <div class="text-muted" style="font-size:.78rem">{{ post.author.reputation }} reputation</div>
+        </div>
+      </div>
+      {% if post.author.bio %}<p class="text-muted mb-0" style="font-size:.82rem">{{ post.author.bio|truncatechars:120 }}</p>{% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+function showReplyForm(id) { document.getElementById('reply-form-'+id).style.display='block'; }
+function hideReplyForm(id) { document.getElementById('reply-form-'+id).style.display='none'; }
+
+{% if user.is_authenticated %}
+let currentVote = {{ user_vote|default:"null" }};
+function vote(postId, value) {
+  const form = new FormData();
+  form.append('value', value);
+  form.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  fetch(`/posts/${postId}/vote/`, {method:'POST', body: form})
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('vote-score').textContent = data.score;
+      const upBtn = document.getElementById('up-btn');
+      const downBtn = document.getElementById('down-btn');
+      upBtn.className = 'vote-btn' + (data.user_vote === 1 ? ' up-active' : '');
+      downBtn.className = 'vote-btn' + (data.user_vote === -1 ? ' down-active' : '');
+      currentVote = data.user_vote;
+    });
+}
+{% endif %}
+</script>
+{% endblock %}
