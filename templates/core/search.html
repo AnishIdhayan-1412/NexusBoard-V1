@@ -6,10 +6,10 @@
   {% else %}Search NexusBoard{% endif %}
 </h4>
 {% if query %}
-  {% if communities %}
-  <h6 class="text-muted mb-2" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.08em">Communities ({{ communities.count }})</h6>
+  {% if community_page.object_list %}
+  <h6 class="text-muted mb-2" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.08em">Communities ({{ community_page.paginator.count }})</h6>
   <div class="row g-2 mb-4">
-    {% for c in communities %}
+    {% for c in community_page %}
     <div class="col-md-4">
       <a href="{% url 'communities:detail' c.slug %}" class="text-decoration-none">
         <div class="card card-hover py-2 px-3">
@@ -22,9 +22,9 @@
   </div>
   {% endif %}
 
-  {% if posts %}
-  <h6 class="text-muted mb-2" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.08em">Posts ({{ posts.count }})</h6>
-  {% for post in posts %}
+  {% if post_page.object_list %}
+  <h6 class="text-muted mb-2" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.08em">Posts ({{ post_page.paginator.count }})</h6>
+  {% for post in post_page %}
   <div class="card mb-2">
     <div class="card-body py-3">
       <div class="d-flex align-items-center gap-2 mb-1">
@@ -36,9 +36,29 @@
     </div>
   </div>
   {% endfor %}
+  {% include 'includes/pagination.html' with page_obj=post_page %}
   {% endif %}
 
-  {% if not posts and not communities %}
+  {% if user_page.object_list %}
+  <h6 class="text-muted mb-2 mt-3" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.08em">Users ({{ user_page.paginator.count }})</h6>
+  <div class="row g-2 mb-4">
+    {% for u in user_page %}
+    <div class="col-md-4">
+      <a href="{% url 'accounts:profile' u.username %}" class="text-decoration-none">
+        <div class="card card-hover py-2 px-3 d-flex flex-row align-items-center gap-2">
+          <img src="{{ u.get_avatar_url }}" class="user-avatar" alt="">
+          <div>
+            <strong style="font-size:.9rem">{{ u.username }}</strong>
+            <div class="text-muted" style="font-size:.75rem">{{ u.reputation }} reputation</div>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if not post_page.object_list and not community_page.object_list and not user_page.object_list %}
   <div class="card"><div class="card-body text-center py-5">
     <div style="font-size:3rem;opacity:.3">🔍</div>
     <h5 class="text-muted mt-2">No results found</h5>

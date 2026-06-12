@@ -127,7 +127,10 @@ class PostTests(TestCase):
         user2 = User.objects.create_user('user2', 'u2@test.com', 'testpass123')
         Vote.objects.create(user=self.user, post=self.post, value=1)
         Vote.objects.create(user=user2, post=self.post, value=1)
-        self.assertEqual(self.post.vote_score, 2)
+        # score is a cached field — must call update_score() to recalculate
+        self.post.update_score()
+        self.post.refresh_from_db()
+        self.assertEqual(self.post.score, 2)
 
 
 class HomeAndSearchTests(TestCase):
