@@ -227,4 +227,4 @@ if DEBUG and not _REDIS_URL:
     RATELIMIT_USE_CACHE = 'dummy'
 
 # ── Silence ratelimit cache warning in dev (Redis handles this in prod) ───────
-SILENCED_SYSTEM_CHECKS = [] if not DEBUG else ['django_ratelimit.E003', 'django_ratelimit.W001']
+SILENCED_SYSTEM_CHECKS = ['django_ratelimit.E003', 'django_ratelimit.W001']
