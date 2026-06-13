@@ -35,3 +35,4 @@ Thumbs.db
 # Docker
 *.override.yml
 test_db.sqlite3
+venv/
