@@ -13,6 +13,8 @@ crispy-bootstrap5==2024.2
 
 # Images
 Pillow==10.4.0
+cloudinary==1.41.0
+django-cloudinary-storage==0.3.0
 
 # Production utilities
 python-decouple==3.8

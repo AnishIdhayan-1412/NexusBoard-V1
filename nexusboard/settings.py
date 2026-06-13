@@ -25,7 +25,9 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage',
     'django.contrib.staticfiles',
+    'cloudinary',
     'django.contrib.humanize',
     # Third party
     'crispy_forms',
@@ -123,9 +125,21 @@ if _STATIC_DIR.exists():
     STATICFILES_DIRS = [_STATIC_DIR]
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# ── Media files ───────────────────────────────────────────────────────────────
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+# ── Cloudinary — persistent media storage (survives Railway redeploys) ────────
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': env('CLOUDINARY_CLOUD_NAME', default=''),
+    'API_KEY': env('CLOUDINARY_API_KEY', default=''),
+    'API_SECRET': env('CLOUDINARY_API_SECRET', default=''),
+}
+
+# Use Cloudinary in production, local filesystem in dev
+if env('CLOUDINARY_CLOUD_NAME', default=''):
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    MEDIA_URL = '/media/'
+else:
+    # Dev fallback — local media
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
