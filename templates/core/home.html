@@ -1,56 +1,138 @@
 {% extends 'base.html' %}
 {% block title %}Home{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Feed sort tabs */
+  .sort-tabs { display: flex; gap: 4px; margin-bottom: 1rem; }
+  .sort-tab { padding: 5px 16px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; text-decoration: none; color: var(--nb-text-muted); background: var(--nb-surface-1); border: 1px solid var(--nb-border); transition: all 0.15s; }
+  .sort-tab:hover { color: var(--nb-text); border-color: var(--nb-primary); }
+  .sort-tab.active { background: var(--nb-primary); color: #fff; border-color: var(--nb-primary); }
+
+  /* Welcome banner */
+  .welcome-banner {
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, rgba(37,99,235,0.12), rgba(14,165,233,0.08));
+    border: 1px solid rgba(37,99,235,0.3);
+    position: relative;
+    overflow: hidden;
+  }
+  .welcome-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 14px;
+    padding: 1.5px;
+    background: linear-gradient(135deg, rgba(37,99,235,0.6), rgba(14,165,233,0.4));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* Score display on feed */
+  .feed-score { font-size: 1rem; font-weight: 700; min-width: 32px; text-align: center; }
+  .feed-score.pos { color: var(--nb-accent-warm); }
+  .feed-score.neg { color: var(--nb-danger); }
+  .feed-score.zero { color: var(--nb-text-muted); }
+
+  /* Reputation bar */
+  .rep-bar-wrap { margin-top: 0.5rem; }
+  .rep-bar { height: 4px; border-radius: 2px; background: var(--nb-surface-2); overflow: hidden; }
+  .rep-bar-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--nb-primary), var(--nb-accent)); transition: width 0.6s ease; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="row g-3">
-  <!-- Feed -->
+
+  <!-- ── Feed ─────────────────────────────────────── -->
   <div class="col-lg-8">
+
+    <!-- Welcome banner for new users -->
     {% if user.is_authenticated and not user.joined_communities.exists %}
-    <div class="card mb-3" style="border:1px solid rgba(99,102,241,0.4);background:rgba(99,102,241,0.08)">
-      <div class="card-body d-flex align-items-center gap-3">
-        <div style="font-size:2rem">👋</div>
+    <div class="welcome-banner mb-3">
+      <div class="d-flex align-items-center gap-3">
+        <div style="font-size:2.2rem;line-height:1">👋</div>
         <div>
-          <strong>Welcome to NexusBoard!</strong>
-          <p class="mb-1 text-muted" style="font-size:.9rem">Join some communities to personalize your feed</p>
-          <a href="{% url 'communities:list' %}" class="btn btn-sm btn-primary">Explore Communities</a>
+          <strong style="font-size:1rem">Welcome to NexusBoard, {{ user.username }}!</strong>
+          <p class="mb-2 text-muted" style="font-size:.875rem;margin-top:2px">Join communities to personalise your feed and start posting.</p>
+          <a href="{% url 'communities:list' %}" class="btn btn-primary btn-sm px-3">Explore Communities</a>
         </div>
       </div>
     </div>
     {% endif %}
 
+    <!-- Feed sort tabs -->
+    <div class="sort-tabs">
+      <a href="?sort=hot" class="sort-tab {% if request.GET.sort == 'hot' or not request.GET.sort %}active{% endif %}">🔥 Hot</a>
+      <a href="?sort=new" class="sort-tab {% if request.GET.sort == 'new' %}active{% endif %}">✨ New</a>
+      <a href="?sort=top" class="sort-tab {% if request.GET.sort == 'top' %}active{% endif %}">⬆️ Top</a>
+    </div>
+
+    <!-- Post feed -->
     {% if page_obj %}
       {% for post in page_obj %}
-      <div class="card card-hover mb-2" onclick="window.location='{% url 'posts:detail' post.pk %}'">
-        <div class="card-body py-3">
+      <div class="card card-hover post-card mb-2" onclick="window.location='{% url 'posts:detail' post.pk %}'">
+        <div class="card-body py-3 ps-3 pe-3">
           <div class="d-flex gap-3">
-            <div class="d-flex flex-column align-items-center gap-1 pt-1" style="min-width:36px">
-              <span class="vote-score" id="score-{{ post.pk }}">{{ post.score }}</span>
-              <i class="bi bi-arrow-up-circle text-muted" style="font-size:0.9rem"></i>
+
+            <!-- Score column -->
+            <div class="d-flex flex-column align-items-center justify-content-center" style="min-width:36px">
+              <span class="feed-score {% if post.score > 0 %}pos{% elif post.score < 0 %}neg{% else %}zero{% endif %}">
+                {{ post.score }}
+              </span>
+              <span class="text-muted" style="font-size:0.65rem;margin-top:1px">pts</span>
             </div>
-            <div class="flex-grow-1">
+
+            <!-- Content -->
+            <div class="flex-grow-1 min-width-0">
               <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
                 <a href="{% url 'communities:detail' post.community.slug %}" class="badge-comm" onclick="event.stopPropagation()">c/{{ post.community.name }}</a>
-                <span class="post-meta">Posted by <a href="{% url 'accounts:profile' post.author.username %}" onclick="event.stopPropagation()">u/{{ post.author.username }}</a> · {{ post.created_at|timesince }} ago</span>
+                <span class="post-meta">
+                  <a href="{% url 'accounts:profile' post.author.username %}" onclick="event.stopPropagation()">u/{{ post.author.username }}</a>
+                  · {{ post.created_at|timesince }} ago
+                </span>
               </div>
-              <h6 class="mb-1"><a href="{% url 'posts:detail' post.pk %}" class="post-title-link" onclick="event.stopPropagation()">{{ post.title }}</a></h6>
-              {% if post.body %}<p class="text-muted mb-1" style="font-size:.88rem">{{ post.body|truncatechars:200 }}</p>{% endif %}
-              {% if post.image %}<img src="{{ post.image.url }}" alt="" class="img-fluid rounded mb-1" style="max-height:200px;object-fit:cover">{% endif %}
-              <div class="post-meta mt-1">
-                <a href="{% url 'posts:detail' post.pk %}" onclick="event.stopPropagation()"><i class="bi bi-chat me-1"></i>{{ post.comment_count }} comments</a>
+              <a href="{% url 'posts:detail' post.pk %}" class="post-title-link d-block mb-1" onclick="event.stopPropagation()">{{ post.title }}</a>
+              {% if post.body %}
+              <p class="text-muted mb-1" style="font-size:.86rem;line-height:1.5">{{ post.body|truncatechars:180 }}</p>
+              {% endif %}
+              {% if post.image %}
+              <img src="{{ post.image.url }}" alt="" class="img-fluid rounded mb-1" style="max-height:180px;object-fit:cover;width:100%">
+              {% endif %}
+              <div class="post-meta mt-1 d-flex align-items-center gap-3">
+                <a href="{% url 'posts:detail' post.pk %}" onclick="event.stopPropagation()">
+                  <i class="bi bi-chat me-1"></i>{{ post.comment_count }} comments
+                </a>
                 {% if post.post_type == 'link' and post.url %}
-                <a href="{{ post.url }}" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="ms-3"><i class="bi bi-link-45deg me-1"></i>Link</a>
+                <a href="{{ post.url }}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+                  <i class="bi bi-link-45deg me-1"></i>Link
+                </a>
                 {% endif %}
               </div>
             </div>
+
           </div>
         </div>
       </div>
       {% empty %}
       <div class="card">
         <div class="card-body text-center py-5">
-          <div style="font-size:3rem;opacity:.3">📭</div>
-          <h5 class="text-muted mt-2">No posts yet</h5>
+          <svg width="64" height="64" viewBox="0 0 64 64" fill="none" style="opacity:.25;margin-bottom:.75rem" xmlns="http://www.w3.org/2000/svg">
+            <rect x="8" y="16" width="48" height="8" rx="4" fill="currentColor"/>
+            <rect x="8" y="30" width="36" height="8" rx="4" fill="currentColor"/>
+            <rect x="8" y="44" width="24" height="8" rx="4" fill="currentColor"/>
+          </svg>
+          <h5 class="text-muted">Nothing here yet</h5>
+          <p class="text-muted mb-3" style="font-size:.875rem">Be the first to share something great.</p>
           {% if user.is_authenticated %}
-          <a href="{% url 'posts:create' %}" class="btn btn-primary mt-2">Create First Post</a>
+          <a href="{% url 'posts:create' %}" class="btn btn-primary btn-sm px-4">Create First Post</a>
+          {% else %}
+          <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-sm px-4">Join and Post</a>
           {% endif %}
         </div>
       </div>
@@ -59,47 +141,54 @@
     {% endif %}
   </div>
 
-  <!-- Sidebar -->
+  <!-- ── Sidebar ───────────────────────────────────── -->
   <div class="col-lg-4">
+
+    <!-- User widget -->
     {% if user.is_authenticated %}
     <div class="sidebar-widget">
       <div class="d-flex align-items-center gap-3 mb-3">
         <img src="{{ user.get_avatar_url }}" alt="" class="user-avatar">
-        <div>
-          <strong>{{ user.username }}</strong>
-          <div class="text-muted" style="font-size:.8rem">{{ user.reputation }} reputation</div>
+        <div class="flex-grow-1 min-width-0">
+          <strong style="font-size:.95rem">{{ user.username }}</strong>
+          <div class="text-muted" style="font-size:.78rem;margin-top:1px">{{ user.reputation }} reputation</div>
+          <div class="rep-bar-wrap">
+            <div class="rep-bar"><div class="rep-bar-fill" style="width:{% widthratio user.reputation 1000 100 %}%"></div></div>
+          </div>
         </div>
       </div>
-      <div class="d-flex gap-2">
-        <a href="{% url 'posts:create' %}" class="btn btn-primary btn-sm flex-fill"><i class="bi bi-plus me-1"></i>New Post</a>
-        <a href="{% url 'communities:create' %}" class="btn btn-outline-primary btn-sm flex-fill">Create Community</a>
-      </div>
+      <a href="{% url 'posts:create' %}" class="btn btn-primary btn-sm w-100 mb-2"><i class="bi bi-pencil me-1"></i>New Post</a>
+      <a href="{% url 'communities:create' %}" class="btn btn-outline-primary btn-sm w-100"><i class="bi bi-plus-circle me-1"></i>Create Community</a>
     </div>
     {% endif %}
 
+    <!-- Trending Communities -->
     <div class="sidebar-widget">
       <h6>🔥 Trending Communities</h6>
       {% for community in trending_communities %}
       <a href="{% url 'communities:detail' community.slug %}" class="community-link">
-        <span class="community-dot"></span>
-        <span class="flex-grow-1">c/{{ community.name }}</span>
-        <span class="text-muted" style="font-size:.75rem">{{ community.post_count }} posts</span>
+        <span class="community-dot" style="background:{{ community.slug|slice:'0:1'|lower|default:'#2563eb' }}"></span>
+        <span class="flex-grow-1" style="font-size:.88rem">c/{{ community.name }}</span>
+        <span class="member-pill">{{ community.member_count }}</span>
       </a>
       {% empty %}
-      <p class="text-muted mb-0" style="font-size:.85rem">No communities yet. <a href="{% url 'communities:create' %}">Create one!</a></p>
+      <p class="text-muted mb-2" style="font-size:.85rem">No communities yet.</p>
+      <a href="{% url 'communities:create' %}" class="btn btn-outline-primary btn-sm w-100">Create one!</a>
       {% endfor %}
     </div>
 
+    <!-- About widget -->
     <div class="sidebar-widget">
       <h6>ℹ️ About NexusBoard</h6>
-      <p class="text-muted mb-0" style="font-size:.85rem">A community platform where ideas connect. Share posts, discuss topics, and build your community.</p>
+      <p class="text-muted mb-0" style="font-size:.84rem;line-height:1.6">A community platform where ideas connect. Share posts, discuss topics, and build your community.</p>
       {% if not user.is_authenticated %}
-      <div class="d-flex gap-2 mt-3">
-        <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary btn-sm flex-fill">Login</a>
-        <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-sm flex-fill">Join Free</a>
+      <div class="mt-3 d-flex flex-column gap-2">
+        <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-sm w-100">Join Free</a>
+        <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary btn-sm w-100">Login</a>
       </div>
       {% endif %}
     </div>
+
   </div>
 </div>
 {% endblock %}
