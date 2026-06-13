@@ -1,59 +1,213 @@
 {% extends 'base.html' %}
 {% block title %}Create Post{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Visual post-type pill tabs (mirrors the hidden select) */
+  .post-type-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1rem;
+  }
+  .post-type-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 8px;
+    border-radius: 10px;
+    border: 1.5px solid var(--nb-border);
+    background: var(--nb-surface-2);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--nb-text-muted);
+    user-select: none;
+  }
+  .post-type-tab i { font-size: 1.3rem; }
+  .post-type-tab:hover { border-color: var(--nb-primary); color: var(--nb-primary-light); }
+  .post-type-tab.active {
+    border-color: var(--nb-primary);
+    background: rgba(37,99,235,0.12);
+    color: var(--nb-primary-light);
+  }
+
+  /* Keep the real select visually hidden but functional */
+  #id_post_type { display: none; }
+
+  /* Title input larger */
+  #id_title { font-size: 1.05rem; }
+
+  /* Character counter */
+  .char-counter { font-size: 0.72rem; color: var(--nb-text-muted); text-align: right; margin-top: 4px; }
+  .char-counter.warn { color: var(--nb-accent-warm); }
+  .char-counter.over { color: var(--nb-danger); }
+
+  /* Upload drag zone */
+  .upload-zone {
+    border: 2px dashed var(--nb-border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .upload-zone:hover { border-color: var(--nb-primary); background: rgba(37,99,235,0.05); }
+  .upload-zone input[type="file"] { display: none; }
+
+  /* Card top accent */
+  .create-card { border-top: 3px solid var(--nb-primary); }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="row justify-content-center">
-  <div class="col-md-8">
-    <div class="card p-4">
-      <h5 class="mb-4"><i class="bi bi-pencil-square me-2"></i>Create Post</h5>
+  <div class="col-12 col-md-8 col-lg-7">
+    <div class="card create-card p-3 p-sm-4">
+
+      <h5 class="mb-4" style="font-weight:700"><i class="bi bi-pencil-square me-2 text-primary"></i>Create a Post</h5>
+
+      <!-- No community warning -->
       {% if not user.joined_communities.exists %}
-      <div class="alert alert-warning">
-        <i class="bi bi-exclamation-triangle me-2"></i>
-        You need to join a community before posting. <a href="{% url 'communities:list' %}">Browse Communities</a>
+      <div class="alert alert-warning d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+        <span style="font-size:.88rem">You need to join a community first.
+          <a href="{% url 'communities:list' %}" style="color:inherit;font-weight:700">Browse Communities →</a>
+        </span>
       </div>
       {% endif %}
+
       <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
+
+        <!-- Community select -->
         <div class="mb-3">
-          <label class="form-label text-muted" style="font-size:.85rem;font-weight:600">COMMUNITY</label>
+          <label class="form-label">Community</label>
           {{ form.community }}
         </div>
+
+        <!-- Post type — visual tabs + hidden select -->
         <div class="mb-3">
-          <label class="form-label text-muted" style="font-size:.85rem;font-weight:600">POST TYPE</label>
-          {{ form.post_type }}
+          <label class="form-label">Post Type</label>
+          {{ form.post_type }}<!-- hidden via CSS -->
+          <div class="post-type-tabs" id="postTypeTabs">
+            <div class="post-type-tab active" data-type="text" onclick="selectType('text')">
+              <i class="bi bi-file-text"></i>Text
+            </div>
+            <div class="post-type-tab" data-type="link" onclick="selectType('link')">
+              <i class="bi bi-link-45deg"></i>Link
+            </div>
+            <div class="post-type-tab" data-type="image" onclick="selectType('image')">
+              <i class="bi bi-image"></i>Image
+            </div>
+          </div>
         </div>
+
+        <!-- Title -->
         <div class="mb-3">
-          <label class="form-label text-muted" style="font-size:.85rem;font-weight:600">TITLE</label>
+          <label class="form-label">Title</label>
           {{ form.title }}
+          <div class="char-counter" id="titleCounter">0 / 300</div>
         </div>
+
+        <!-- Body (text) -->
         <div id="body-section" class="mb-3">
-          <label class="form-label text-muted" style="font-size:.85rem;font-weight:600">BODY (Optional)</label>
+          <label class="form-label">Body <span class="text-muted" style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
           {{ form.body }}
         </div>
+
+        <!-- URL (link) -->
         <div id="url-section" class="mb-3" style="display:none">
-          <label class="form-label text-muted" style="font-size:.85rem;font-weight:600">URL</label>
+          <label class="form-label">URL</label>
           {{ form.url }}
         </div>
+
+        <!-- Image (image) -->
         <div id="image-section" class="mb-3" style="display:none">
-          <label class="form-label text-muted" style="font-size:.85rem;font-weight:600">IMAGE</label>
-          {{ form.image }}
+          <label class="form-label">Image</label>
+          <div class="upload-zone" onclick="document.getElementById('id_image').click()">
+            <i class="bi bi-cloud-upload" style="font-size:1.8rem;color:var(--nb-text-muted)"></i>
+            <p class="text-muted mb-0 mt-1" style="font-size:.85rem">Click to choose an image</p>
+            {{ form.image }}
+          </div>
+          <div id="imageFileName" class="text-muted mt-1" style="font-size:.78rem"></div>
         </div>
-        {% for field in form %}{% if field.errors %}
-        <div class="text-danger" style="font-size:.82rem">{{ field.label }}: {{ field.errors.0 }}</div>
-        {% endif %}{% endfor %}
-        <div class="d-flex gap-2 mt-4">
-          <button type="submit" class="btn btn-primary px-4">Submit Post</button>
-          <a href="{% url 'core:home' %}" class="btn btn-outline-secondary">Cancel</a>
+
+        <!-- Field errors -->
+        {% for field in form %}
+          {% if field.errors %}
+          <div class="text-danger mb-2" style="font-size:.82rem"><i class="bi bi-exclamation-circle me-1"></i>{{ field.label }}: {{ field.errors.0 }}</div>
+          {% endif %}
+        {% endfor %}
+
+        <!-- Actions -->
+        <div class="d-flex gap-2 mt-4 flex-column flex-sm-row">
+          <button type="submit" class="btn btn-primary flex-sm-fill py-2" style="font-size:.95rem">
+            <i class="bi bi-send me-1"></i>Submit Post
+          </button>
+          <a href="{% url 'core:home' %}" class="btn btn-outline-secondary flex-sm-fill py-2">
+            Cancel
+          </a>
         </div>
       </form>
+
     </div>
   </div>
 </div>
+
 <script>
-document.getElementById('id_post_type').addEventListener('change', function() {
-  const type = this.value;
-  document.getElementById('body-section').style.display = type === 'text' ? 'block' : 'none';
-  document.getElementById('url-section').style.display = type === 'link' ? 'block' : 'none';
+/* ── Post type visual tabs + hidden select sync ──
+   The real <select id="id_post_type"> is hidden via CSS.
+   We mirror its value from the pill tabs.
+   The existing section-show logic still uses the select's value. */
+
+function selectType(type) {
+  // Update hidden select (preserves backend logic)
+  document.getElementById('id_post_type').value = type;
+  // Update visual tab states
+  document.querySelectorAll('.post-type-tab').forEach(function(tab) {
+    tab.classList.toggle('active', tab.dataset.type === type);
+  });
+  // Show/hide sections (same logic as original)
+  document.getElementById('body-section').style.display  = type === 'text'  ? 'block' : 'none';
+  document.getElementById('url-section').style.display   = type === 'link'  ? 'block' : 'none';
   document.getElementById('image-section').style.display = type === 'image' ? 'block' : 'none';
+}
+
+/* ── Keep existing select listener for back-compat ── */
+document.getElementById('id_post_type').addEventListener('change', function() {
+  selectType(this.value);
 });
+
+/* ── Title character counter ── */
+var titleInput = document.getElementById('id_title');
+if (titleInput) {
+  titleInput.setAttribute('placeholder', "What's on your mind?");
+  titleInput.setAttribute('maxlength', '300');
+  titleInput.addEventListener('input', function() {
+    var len = this.value.length;
+    var el = document.getElementById('titleCounter');
+    el.textContent = len + ' / 300';
+    el.className = 'char-counter' + (len > 270 ? (len >= 300 ? ' over' : ' warn') : '');
+  });
+}
+
+/* ── Image filename display ── */
+var imageInput = document.getElementById('id_image');
+if (imageInput) {
+  imageInput.addEventListener('change', function() {
+    var name = this.files[0] ? this.files[0].name : '';
+    document.getElementById('imageFileName').textContent = name ? '📎 ' + name : '';
+  });
+}
+
+/* ── Init: sync visual tabs with select's current value
+   (handles pre-selected value if form re-renders after error) ── */
+(function() {
+  var currentType = document.getElementById('id_post_type').value || 'text';
+  selectType(currentType);
+})();
 </script>
 {% endblock %}
