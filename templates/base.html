@@ -4,82 +4,269 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}NexusBoard{% endblock %} – Where Ideas Connect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   {% load static %}
   <style>
-    :root { --nb-primary: #6366f1; --nb-primary-dark: #4f46e5; --nb-accent: #22d3ee; --nb-surface: #1e1e2e; --nb-surface-2: #2a2a3e; --nb-border: rgba(255,255,255,0.08); --nb-text-muted: #94a3b8; }
-    body { background: #13131f; color: #e2e8f0; font-family: system-ui, -apple-system, sans-serif; min-height: 100vh; }
-    .navbar { background: var(--nb-surface) !important; border-bottom: 1px solid var(--nb-border); }
-    .navbar-brand { font-weight: 800; font-size: 1.4rem; background: linear-gradient(135deg, var(--nb-primary), var(--nb-accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .card { background: var(--nb-surface); border: 1px solid var(--nb-border); border-radius: 12px; }
-    .card-hover { transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; }
-    .card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(99,102,241,0.15); }
-    .btn-primary { background: var(--nb-primary); border-color: var(--nb-primary); font-weight: 600; }
-    .btn-primary:hover { background: var(--nb-primary-dark); border-color: var(--nb-primary-dark); }
-    .btn-outline-primary { color: var(--nb-primary); border-color: var(--nb-primary); }
-    .btn-outline-primary:hover { background: var(--nb-primary); color: white; }
-    .form-control, .form-select { background: var(--nb-surface-2); border: 1px solid var(--nb-border); color: #e2e8f0; border-radius: 8px; }
-    .form-control:focus, .form-select:focus { background: var(--nb-surface-2); border-color: var(--nb-primary); color: #e2e8f0; box-shadow: 0 0 0 0.2rem rgba(99,102,241,0.25); }
+    /* ── Design Tokens ──────────────────────────────────── */
+    :root {
+      --nb-primary:       #2563eb;
+      --nb-primary-dark:  #1d4ed8;
+      --nb-primary-light: #3b82f6;
+      --nb-accent:        #0ea5e9;
+      --nb-accent-warm:   #f59e0b;
+      --nb-surface:       #0f172a;
+      --nb-surface-1:     #1e293b;
+      --nb-surface-2:     #334155;
+      --nb-border:        rgba(148,163,184,0.12);
+      --nb-text:          #f1f5f9;
+      --nb-text-muted:    #94a3b8;
+      --nb-success:       #10b981;
+      --nb-danger:        #ef4444;
+    }
+
+    /* ── Base ───────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      background: var(--nb-surface);
+      color: var(--nb-text);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 0.95rem;
+      min-height: 100vh;
+    }
+    @media (max-width: 991.98px) { body { padding-bottom: 72px; } }
+
+    /* ── Keyframes ──────────────────────────────────────── */
+    @keyframes pulse-up {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.35); }
+      100% { transform: scale(1); }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Navbar ─────────────────────────────────────────── */
+    .navbar {
+      background: rgba(15,23,42,0.95) !important;
+      border-bottom: 1px solid var(--nb-border);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 0.6rem 0;
+    }
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--nb-text) !important;
+      text-decoration: none;
+      letter-spacing: -0.01em;
+    }
+    .navbar-brand .nb-hex {
+      width: 28px; height: 28px; flex-shrink: 0;
+    }
+    .navbar-brand span { color: var(--nb-text); }
+
+    /* Nav links */
+    .nav-link { color: var(--nb-text-muted) !important; font-weight: 500; font-size: 0.88rem; padding: 0.4rem 0.65rem !important; border-radius: 6px; position: relative; transition: color 0.15s, background 0.15s; }
+    .nav-link:hover { color: var(--nb-text) !important; background: rgba(148,163,184,0.07); }
+    .nav-link.nav-active { color: var(--nb-text) !important; }
+    .nav-link.nav-active::after { content: ''; position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%); width: 60%; height: 2px; background: var(--nb-primary); border-radius: 2px; }
+
+    /* Search bar */
+    .nb-search-wrap { position: relative; width: 280px; }
+    .nb-search-wrap .form-control {
+      background: var(--nb-surface-1);
+      border: 1px solid var(--nb-border);
+      color: var(--nb-text);
+      border-radius: 20px;
+      padding: 0.38rem 1rem 0.38rem 2.2rem;
+      font-size: 0.85rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .nb-search-wrap .form-control:focus { border-color: var(--nb-primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.2); outline: none; }
+    .nb-search-wrap .form-control::placeholder { color: var(--nb-text-muted); }
+    .nb-search-icon { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--nb-text-muted); font-size: 0.8rem; pointer-events: none; }
+
+    /* Buttons */
+    .btn-primary { background: var(--nb-primary); border-color: var(--nb-primary); font-weight: 600; font-size: 0.85rem; transition: background 0.15s, transform 0.1s; }
+    .btn-primary:hover { background: var(--nb-primary-dark); border-color: var(--nb-primary-dark); transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-outline-primary { color: var(--nb-primary); border-color: var(--nb-primary); font-size: 0.85rem; font-weight: 600; transition: background 0.15s, transform 0.1s; }
+    .btn-outline-primary:hover { background: var(--nb-primary); color: #fff; transform: translateY(-1px); }
+    .btn-sm { border-radius: 8px; }
+
+    /* Dropdown */
+    .dropdown-menu { background: var(--nb-surface-1); border: 1px solid var(--nb-border); border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); padding: 0.4rem; min-width: 180px; }
+    .dropdown-item { color: var(--nb-text); border-radius: 8px; font-size: 0.88rem; padding: 0.5rem 0.75rem; transition: background 0.12s; }
+    .dropdown-item:hover { background: rgba(37,99,235,0.12); color: #fff; }
+    .dropdown-divider { border-color: var(--nb-border); margin: 0.3rem 0; }
+
+    /* ── Cards ──────────────────────────────────────────── */
+    .card {
+      background: var(--nb-surface-1);
+      border: 1px solid var(--nb-border);
+      border-radius: 12px;
+      animation: fadeInUp 0.25s ease both;
+    }
+    .card-hover { transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; cursor: pointer; }
+    .card-hover:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(37,99,235,0.2); border-color: rgba(37,99,235,0.3); }
+
+    /* Post card left accent */
+    .post-card { border-left: 3px solid var(--nb-primary); }
+
+    /* ── Forms ──────────────────────────────────────────── */
+    .form-control, .form-select {
+      background: var(--nb-surface-2);
+      border: 1px solid var(--nb-border);
+      color: var(--nb-text);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-control:focus, .form-select:focus {
+      background: var(--nb-surface-2);
+      border-color: var(--nb-primary);
+      color: var(--nb-text);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.25);
+      outline: none;
+    }
     .form-control::placeholder { color: var(--nb-text-muted); }
-    .vote-btn { background: none; border: none; color: var(--nb-text-muted); transition: color 0.15s; font-size: 1.1rem; padding: 2px 6px; }
-    .vote-btn:hover { color: var(--nb-primary); }
-    .vote-btn.up-active { color: var(--nb-primary); }
-    .vote-btn.down-active { color: #ef4444; }
-    .vote-score { font-weight: 700; font-size: 0.9rem; color: #e2e8f0; min-width: 28px; text-align: center; }
-    .sidebar-widget { background: var(--nb-surface); border: 1px solid var(--nb-border); border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
-    .sidebar-widget h6 { color: var(--nb-text-muted); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.1em; font-weight: 700; margin-bottom: 0.75rem; }
-    .community-link { display: flex; align-items: center; gap: 8px; padding: 6px 0; text-decoration: none; color: #e2e8f0; transition: color 0.15s; }
-    .community-link:hover { color: var(--nb-primary); }
-    .community-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--nb-primary); flex-shrink: 0; }
-    .post-meta { font-size: 0.82rem; color: var(--nb-text-muted); }
-    .post-meta a { color: var(--nb-text-muted); text-decoration: none; }
-    .post-meta a:hover { color: var(--nb-primary); }
-    .comment-card { background: var(--nb-surface-2); border: 1px solid var(--nb-border); border-radius: 10px; padding: 1rem; margin-bottom: 0.75rem; }
-    .reply-indent { margin-left: 2rem; border-left: 3px solid rgba(99,102,241,0.4); padding-left: 1rem; }
+    .form-select option { background: var(--nb-surface-2); }
+    .form-label { font-size: 0.75rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: var(--nb-text-muted); margin-bottom: 0.35rem; }
+
+    /* ── Vote Controls ──────────────────────────────────── */
+    .vote-btn { background: none; border: none; color: var(--nb-text-muted); font-size: 1.1rem; padding: 3px 6px; border-radius: 6px; transition: color 0.15s, background 0.15s; line-height: 1; }
+    .vote-btn:hover { color: var(--nb-accent-warm); background: rgba(245,158,11,0.1); }
+    .vote-btn.up-active { color: var(--nb-accent-warm); animation: pulse-up 0.35s ease; }
+    .vote-btn.down-active { color: var(--nb-danger); }
+    .vote-score { font-weight: 700; font-size: 1.1rem; min-width: 32px; text-align: center; transition: color 0.2s; }
+    .vote-score.positive { color: var(--nb-accent-warm); }
+    .vote-score.negative { color: var(--nb-danger); }
+    .vote-score.zero { color: var(--nb-text-muted); }
+
+    /* ── Sidebar ────────────────────────────────────────── */
+    .sidebar-widget { background: var(--nb-surface-1); border: 1px solid var(--nb-border); border-radius: 12px; padding: 1.15rem; margin-bottom: 1rem; }
+    .sidebar-widget h6 { color: var(--nb-text-muted); text-transform: uppercase; font-size: 0.68rem; letter-spacing: 0.1em; font-weight: 700; margin-bottom: 0.8rem; }
+    .community-link { display: flex; align-items: center; gap: 9px; padding: 7px 0; text-decoration: none; color: var(--nb-text); transition: color 0.15s, padding-left 0.15s; border-radius: 6px; }
+    .community-link:hover { color: var(--nb-primary-light); padding-left: 4px; }
+    .community-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .member-pill { background: var(--nb-surface-2); color: var(--nb-text-muted); font-size: 0.7rem; font-weight: 600; border-radius: 20px; padding: 1px 7px; }
+
+    /* ── Badges ─────────────────────────────────────────── */
+    .badge-comm { background: rgba(37,99,235,0.15); color: var(--nb-primary-light); border: 1px solid rgba(37,99,235,0.25); border-radius: 20px; padding: 2px 10px; font-size: 0.74rem; font-weight: 600; text-decoration: none; display: inline-block; transition: background 0.15s; }
+    .badge-comm:hover { background: rgba(37,99,235,0.28); color: var(--nb-primary-light); }
+
+    /* ── Post meta ──────────────────────────────────────── */
+    .post-meta { font-size: 0.8rem; color: var(--nb-text-muted); }
+    .post-meta a { color: var(--nb-text-muted); text-decoration: none; transition: color 0.12s; }
+    .post-meta a:hover { color: var(--nb-primary-light); }
+    .post-title-link { color: var(--nb-text); text-decoration: none; font-weight: 600; line-height: 1.4; transition: color 0.15s; }
+    .post-title-link:hover { color: var(--nb-primary-light); }
+
+    /* ── Comments ───────────────────────────────────────── */
+    .comment-card { background: var(--nb-surface-2); border: 1px solid var(--nb-border); border-radius: 10px; padding: 1rem; margin-bottom: 0.7rem; }
+    .reply-indent { margin-left: 1.75rem; border-left: 2px solid rgba(37,99,235,0.35); padding-left: 1rem; margin-top: 0.6rem; }
+
+    /* ── Avatars ─────────────────────────────────────────── */
     .user-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
-    .user-avatar-lg { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; }
-    .badge-comm { background: rgba(99,102,241,0.2); color: var(--nb-primary); border: 1px solid rgba(99,102,241,0.3); border-radius: 20px; padding: 2px 10px; font-size: 0.75rem; font-weight: 600; text-decoration: none; display: inline-block; }
-    .badge-comm:hover { background: rgba(99,102,241,0.35); color: var(--nb-primary); }
-    .nav-link { color: var(--nb-text-muted) !important; font-weight: 500; }
-    .nav-link:hover { color: #e2e8f0 !important; }
-    .dropdown-menu { background: var(--nb-surface-2); border: 1px solid var(--nb-border); }
-    .dropdown-item { color: #e2e8f0; }
-    .dropdown-item:hover { background: rgba(99,102,241,0.15); color: #fff; }
+    .user-avatar-lg { width: 82px; height: 82px; border-radius: 50%; object-fit: cover; border: 3px solid var(--nb-surface-2); }
+
+    /* ── Misc ───────────────────────────────────────────── */
     hr { border-color: var(--nb-border); opacity: 1; }
-    .text-primary { color: var(--nb-primary) !important; }
+    .text-primary { color: var(--nb-primary-light) !important; }
     .text-muted { color: var(--nb-text-muted) !important; }
-    .alert { border-radius: 10px; border: none; }
-    .post-title-link { color: #e2e8f0; text-decoration: none; font-weight: 600; }
-    .post-title-link:hover { color: var(--nb-primary); }
+    .alert { border-radius: 10px; border: none; font-size: 0.9rem; }
+    .alert-success { background: rgba(16,185,129,0.15); color: #6ee7b7; }
+    .alert-danger  { background: rgba(239,68,68,0.15);  color: #fca5a5; }
+    .alert-info    { background: rgba(14,165,233,0.15); color: #7dd3fc; }
+    .alert-warning { background: rgba(245,158,11,0.15); color: #fcd34d; }
+
+    /* ── Mobile Bottom Nav ──────────────────────────────── */
+    .mobile-bottom-nav {
+      display: none;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 1000;
+      background: rgba(15,23,42,0.97);
+      border-top: 1px solid var(--nb-border);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      height: 60px;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 0.5rem;
+    }
+    @media (max-width: 991.98px) { .mobile-bottom-nav { display: flex; } }
+    .mob-nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: var(--nb-text-muted); font-size: 0.62rem; font-weight: 500; padding: 6px 10px; border-radius: 10px; transition: color 0.15s, background 0.15s; min-width: 48px; }
+    .mob-nav-item:hover, .mob-nav-item.active { color: var(--nb-primary-light); background: rgba(37,99,235,0.1); }
+    .mob-nav-item i { font-size: 1.25rem; line-height: 1; }
+    .mob-nav-fab { width: 46px; height: 46px; border-radius: 50%; background: var(--nb-primary); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; box-shadow: 0 4px 14px rgba(37,99,235,0.5); transition: background 0.15s, transform 0.15s; text-decoration: none; margin-top: -10px; }
+    .mob-nav-fab:hover { background: var(--nb-primary-dark); color: #fff; transform: scale(1.08); }
+
+    /* ── Footer ─────────────────────────────────────────── */
+    .nb-footer { background: var(--nb-surface-1); border-top: 1px solid var(--nb-border); padding: 1rem 0; margin-top: 3rem; }
+    .nb-footer-inner { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--nb-text-muted); }
+    .nb-footer a { color: var(--nb-text-muted); text-decoration: none; transition: color 0.12s; }
+    .nb-footer a:hover { color: var(--nb-primary-light); }
   </style>
   {% block extra_css %}{% endblock %}
 </head>
 <body>
 
+<!-- ── Top Navbar ─────────────────────────────────────── -->
 <nav class="navbar navbar-expand-lg sticky-top">
   <div class="container-xl">
-    <a class="navbar-brand" href="{% url 'core:home' %}">⬡ NexusBoard</a>
-    <button class="navbar-toggler border-0 text-light" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+
+    <!-- Brand -->
+    <a class="navbar-brand" href="{% url 'core:home' %}">
+      <svg class="nb-hex" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M14 2L25.2583 8.5V21.5L14 28L2.74167 21.5V8.5L14 2Z" fill="#2563eb"/>
+        <path d="M9 14h10M14 9v10" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span>NexusBoard</span>
+    </a>
+
+    <!-- Mobile toggler -->
+    <button class="navbar-toggler border-0 text-light d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
       <i class="bi bi-list fs-4"></i>
     </button>
+
     <div class="collapse navbar-collapse" id="navMenu">
-      <form class="d-flex mx-auto my-2 my-lg-0" style="width:300px" action="{% url 'core:search' %}">
-        <input class="form-control" type="search" name="q" placeholder="Search..." value="{{ request.GET.q }}" style="border-radius:25px;padding:.4rem 1.2rem">
+      <!-- Search -->
+      <form class="d-flex mx-auto my-2 my-lg-0 nb-search-wrap" action="{% url 'core:search' %}">
+        <i class="bi bi-search nb-search-icon"></i>
+        <input class="form-control" type="search" name="q" placeholder="Search posts, communities…" value="{{ request.GET.q }}">
       </form>
+
+      <!-- Nav links -->
       <ul class="navbar-nav ms-auto align-items-center gap-1">
-        <li class="nav-item"><a class="nav-link" href="{% url 'communities:list' %}"><i class="bi bi-grid me-1"></i>Communities</a></li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.path == '/communities/' %}nav-active{% endif %}" href="{% url 'communities:list' %}">
+            <i class="bi bi-grid me-1"></i>Communities
+          </a>
+        </li>
         {% if user.is_authenticated %}
-        <li class="nav-item ms-2"><a class="btn btn-primary btn-sm" href="{% url 'posts:create' %}"><i class="bi bi-plus-lg me-1"></i>Post</a></li>
+        <li class="nav-item ms-1">
+          <a class="btn btn-primary btn-sm px-3" href="{% url 'posts:create' %}">
+            <i class="bi bi-plus-lg me-1"></i>Post
+          </a>
+        </li>
         <li class="nav-item dropdown ms-2">
-          <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" data-bs-toggle="dropdown">
-            <img src="{{ user.get_avatar_url }}" alt="" style="width:28px;height:28px;border-radius:50%;object-fit:cover">
-            {{ user.username }}
+          <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 pe-0" href="#" data-bs-toggle="dropdown">
+            <img src="{{ user.get_avatar_url }}" alt="" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid var(--nb-border)">
+            <span style="font-size:0.88rem">{{ user.username }}</span>
           </a>
           <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" href="{% url 'accounts:profile' user.username %}"><i class="bi bi-person me-2"></i>Profile</a></li>
-            <li><a class="dropdown-item" href="{% url 'accounts:edit_profile' %}"><i class="bi bi-gear me-2"></i>Settings</a></li>
-            <li><hr class="dropdown-divider" style="border-color:var(--nb-border)"></li>
+            <li><a class="dropdown-item" href="{% url 'accounts:profile' user.username %}"><i class="bi bi-person me-2 opacity-75"></i>Profile</a></li>
+            <li><a class="dropdown-item" href="{% url 'accounts:edit_profile' %}"><i class="bi bi-gear me-2 opacity-75"></i>Settings</a></li>
+            <li><hr class="dropdown-divider"></li>
             <li>
               <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}
                 <button class="dropdown-item text-danger" type="submit"><i class="bi bi-box-arrow-right me-2"></i>Logout</button>
@@ -88,33 +275,71 @@
           </ul>
         </li>
         {% else %}
-        <li class="nav-item ms-2"><a class="btn btn-outline-primary btn-sm" href="{% url 'accounts:login' %}">Login</a></li>
-        <li class="nav-item ms-1"><a class="btn btn-primary btn-sm" href="{% url 'accounts:register' %}">Sign Up</a></li>
+        <li class="nav-item ms-2"><a class="btn btn-outline-primary btn-sm px-3" href="{% url 'accounts:login' %}">Login</a></li>
+        <li class="nav-item ms-1"><a class="btn btn-primary btn-sm px-3" href="{% url 'accounts:register' %}">Sign Up</a></li>
         {% endif %}
       </ul>
     </div>
   </div>
 </nav>
 
+<!-- ── Page Content ───────────────────────────────────── -->
 <div class="container-xl py-3">
   {% for message in messages %}
   <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'info' }}{% endif %} alert-dismissible fade show" role="alert">
-    {{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    {{ message }}<button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
   </div>
   {% endfor %}
   {% block content %}{% endblock %}
 </div>
 
-<footer class="mt-5 py-4" style="background:var(--nb-surface);border-top:1px solid var(--nb-border)">
-  <div class="container-xl d-flex flex-wrap justify-content-between align-items-center">
-    <span class="text-muted" style="font-size:.85rem">⬡ NexusBoard — Where Ideas Connect</span>
-    <div class="d-flex gap-3" style="font-size:.85rem">
-      <a href="{% url 'core:about' %}" class="text-muted text-decoration-none">About</a>
-      <a href="{% url 'core:health' %}" class="text-muted text-decoration-none">Health</a>
-      <a href="{% url 'communities:list' %}" class="text-muted text-decoration-none">Communities</a>
+<!-- ── Footer ─────────────────────────────────────────── -->
+<footer class="nb-footer d-none d-lg-block">
+  <div class="container-xl nb-footer-inner">
+    <span>⬡ NexusBoard — Where Ideas Connect</span>
+    <div class="d-flex gap-3">
+      <a href="{% url 'core:about' %}">About</a>
+      <a href="{% url 'core:health' %}">Health</a>
+      <a href="{% url 'communities:list' %}">Communities</a>
     </div>
   </div>
 </footer>
+
+<!-- ── Mobile Bottom Navigation ──────────────────────── -->
+<nav class="mobile-bottom-nav d-lg-none">
+  <a class="mob-nav-item {% if request.path == '/' %}active{% endif %}" href="{% url 'core:home' %}">
+    <i class="bi bi-house{% if request.path == '/' %}-fill{% endif %}"></i>
+    <span>Home</span>
+  </a>
+  <a class="mob-nav-item {% if '/communities/' in request.path %}active{% endif %}" href="{% url 'communities:list' %}">
+    <i class="bi bi-grid{% if '/communities/' in request.path %}-fill{% endif %}"></i>
+    <span>Communities</span>
+  </a>
+  {% if user.is_authenticated %}
+  <a class="mob-nav-fab" href="{% url 'posts:create' %}" title="Create Post">
+    <i class="bi bi-plus-lg"></i>
+  </a>
+  {% else %}
+  <a class="mob-nav-fab" href="{% url 'accounts:register' %}" title="Join">
+    <i class="bi bi-plus-lg"></i>
+  </a>
+  {% endif %}
+  <a class="mob-nav-item {% if '/search/' in request.path %}active{% endif %}" href="{% url 'core:search' %}">
+    <i class="bi bi-search"></i>
+    <span>Search</span>
+  </a>
+  {% if user.is_authenticated %}
+  <a class="mob-nav-item {% if '/accounts/profile/' in request.path %}active{% endif %}" href="{% url 'accounts:profile' user.username %}">
+    <img src="{{ user.get_avatar_url }}" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover;border:2px solid {% if '/accounts/profile/' in request.path %}var(--nb-primary){% else %}var(--nb-border){% endif %}">
+    <span>Profile</span>
+  </a>
+  {% else %}
+  <a class="mob-nav-item {% if '/accounts/login/' in request.path %}active{% endif %}" href="{% url 'accounts:login' %}">
+    <i class="bi bi-person"></i>
+    <span>Login</span>
+  </a>
+  {% endif %}
+</nav>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 {% block extra_js %}{% endblock %}
