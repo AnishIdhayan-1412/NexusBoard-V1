@@ -1,32 +1,130 @@
 {% extends 'base.html' %}
-{% block title %}Register{% endblock %}
+{% block title %}Sign Up{% endblock %}
+
+{% block extra_css %}
+<style>
+  .auth-card {
+    border-top: 3px solid var(--nb-primary);
+    border-radius: 14px;
+  }
+  .auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 1.25rem 0;
+    color: var(--nb-text-muted);
+    font-size: 0.78rem;
+  }
+  .auth-divider::before, .auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--nb-border);
+  }
+  /* Password strength indicator */
+  .pw-strength-bar {
+    height: 3px;
+    border-radius: 2px;
+    background: var(--nb-surface-2);
+    margin-top: 6px;
+    overflow: hidden;
+  }
+  .pw-strength-fill {
+    height: 100%;
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.3s, background 0.3s;
+  }
+  .pw-strength-label { font-size: 0.72rem; color: var(--nb-text-muted); margin-top: 3px; }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center mt-4">
-  <div class="col-md-5 col-sm-10">
-    <div class="card p-4">
+<div class="row justify-content-center" style="margin-top:2rem">
+  <div class="col-11 col-sm-9 col-md-5">
+    <div class="card auth-card p-3 p-sm-4">
+
+      <!-- Header — no duplicate brand logo -->
       <div class="text-center mb-4">
-        <div class="navbar-brand" style="font-size:2rem;display:block">⬡ NexusBoard</div>
-        <h5 class="mt-2 mb-0">Create your account</h5>
-        <p class="text-muted" style="font-size:.9rem">Join thousands of people sharing ideas</p>
+        <h5 class="mb-1" style="font-weight:700">Create your account</h5>
+        <p class="text-muted mb-0" style="font-size:.875rem">Join the NexusBoard community — it's free</p>
       </div>
-      <form method="post">
+
+      <form method="post" id="registerForm">
         {% csrf_token %}
         {% for field in form %}
         <div class="mb-3">
-          <label class="form-label text-muted" style="font-size:.85rem;font-weight:600">{{ field.label|upper }}</label>
+          <label class="form-label">{{ field.label }}</label>
           {{ field }}
           {% if field.errors %}
-          <div class="text-danger" style="font-size:.82rem">{{ field.errors.0 }}</div>
+          <div class="text-danger mt-1" style="font-size:.82rem">
+            <i class="bi bi-exclamation-circle me-1"></i>{{ field.errors.0 }}
+          </div>
+          {% endif %}
+          {% if field.help_text and not field.errors %}
+          <div class="text-muted mt-1" style="font-size:.78rem">{{ field.help_text }}</div>
+          {% endif %}
+          <!-- Password strength bar under password1 -->
+          {% if field.html_name == 'password1' %}
+          <div class="pw-strength-bar"><div class="pw-strength-fill" id="pwStrengthFill"></div></div>
+          <div class="pw-strength-label" id="pwStrengthLabel"></div>
           {% endif %}
         </div>
         {% endfor %}
-        <button type="submit" class="btn btn-primary w-100 py-2 mt-2" style="border-radius:8px">Create Account</button>
+
+        <button type="submit" class="btn btn-primary w-100 py-2 mt-1" id="registerSubmit"
+                style="font-size:.95rem;border-radius:9px">
+          <i class="bi bi-person-plus me-1"></i>Create Account
+        </button>
       </form>
-      <hr>
-      <p class="text-center text-muted mb-0" style="font-size:.9rem">
-        Already have an account? <a href="{% url 'accounts:login' %}" style="color:var(--nb-primary)">Sign in</a>
-      </p>
+
+      <div class="auth-divider">already have an account?</div>
+
+      <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary w-100 py-2" style="border-radius:9px;font-size:.88rem">
+        Sign In
+      </a>
+
     </div>
   </div>
 </div>
+
+<script>
+/* ── Password strength indicator ── */
+var pwInput = document.getElementById('id_password1');
+if (pwInput) {
+  pwInput.addEventListener('input', function() {
+    var val = this.value;
+    var score = 0;
+    if (val.length >= 8)  score++;
+    if (val.length >= 12) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+
+    var fill  = document.getElementById('pwStrengthFill');
+    var label = document.getElementById('pwStrengthLabel');
+    if (!fill || !label) return;
+
+    var levels = [
+      { pct: '0%',   color: '',                    text: '' },
+      { pct: '25%',  color: 'var(--nb-danger)',    text: 'Too short' },
+      { pct: '50%',  color: 'var(--nb-accent-warm)', text: 'Fair' },
+      { pct: '75%',  color: 'var(--nb-accent)',    text: 'Good' },
+      { pct: '90%',  color: 'var(--nb-success)',   text: 'Strong' },
+      { pct: '100%', color: 'var(--nb-success)',   text: 'Very strong ✓' },
+    ];
+    var lvl = val.length === 0 ? 0 : Math.min(score + 1, 5);
+    fill.style.width      = levels[lvl].pct;
+    fill.style.background = levels[lvl].color;
+    label.textContent     = levels[lvl].text;
+  });
+}
+
+/* ── Loading state on submit ── */
+document.getElementById('registerForm').addEventListener('submit', function() {
+  var btn = document.getElementById('registerSubmit');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Creating account…';
+});
+</script>
 {% endblock %}
