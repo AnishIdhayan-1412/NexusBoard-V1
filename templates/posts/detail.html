@@ -1,37 +1,174 @@
 {% extends 'base.html' %}
 {% block title %}{{ post.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ── Vote column — desktop vertical, mobile horizontal ── */
+  .vote-col-desktop {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-width: 44px;
+    padding-top: 2px;
+  }
+  .vote-col-mobile {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0 4px;
+    border-top: 1px solid var(--nb-border);
+    margin-top: 12px;
+  }
+  @media (max-width: 575.98px) {
+    .vote-col-desktop { display: none; }
+    .vote-col-mobile  { display: flex; }
+  }
+
+  /* Upvote button bigger on desktop */
+  @media (min-width: 576px) {
+    .vote-btn { font-size: 1.4rem; }
+  }
+
+  /* Score color updates via JS */
+  #vote-score-desk, #vote-score-mob {
+    font-size: 1.2rem;
+    font-weight: 700;
+    min-width: 36px;
+    text-align: center;
+    transition: color 0.25s;
+  }
+
+  /* Author chip */
+  .author-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--nb-surface-2);
+    border-radius: 20px;
+    padding: 3px 10px 3px 3px;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+  .author-chip:hover { background: rgba(37,99,235,0.18); }
+  .author-chip img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
+  .author-chip span { font-size: 0.82rem; font-weight: 600; color: var(--nb-primary-light); }
+
+  /* Reply indent accent */
+  .reply-indent {
+    margin-left: 1.5rem;
+    border-left: 2px solid rgba(37,99,235,0.35);
+    padding-left: 1rem;
+    margin-top: 0.6rem;
+  }
+
+  /* Character counter */
+  .char-counter { font-size: 0.72rem; color: var(--nb-text-muted); text-align: right; margin-top: 4px; }
+  .char-counter.warn { color: var(--nb-accent-warm); }
+  .char-counter.over { color: var(--nb-danger); }
+
+  /* Comment form textarea */
+  .comment-textarea { resize: vertical; min-height: 80px; }
+
+  /* Empty comments illustration */
+  .comments-empty {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    background: var(--nb-surface-1);
+    border: 1px solid var(--nb-border);
+    border-radius: 12px;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="row g-3">
   <div class="col-lg-8">
-    <!-- Post Card -->
-    <div class="card mb-3">
-      <div class="card-body">
+
+    <!-- ── Post Card ──────────────────────────────────── -->
+    <div class="card post-card mb-3">
+      <div class="card-body p-3 p-sm-4">
         <div class="d-flex gap-3">
-          <!-- Votes -->
-          <div class="d-flex flex-column align-items-center gap-1 pt-1" style="min-width:40px">
+
+          <!-- Vote column — desktop only -->
+          <div class="vote-col-desktop">
             {% if user.is_authenticated %}
-            <button class="vote-btn {% if user_vote == 1 %}up-active{% endif %}" onclick="vote({{ post.pk }}, 1)" id="up-btn"><i class="bi bi-arrow-up-circle-fill"></i></button>
-            <span class="vote-score" id="vote-score">{{ post.score }}</span>
-            <button class="vote-btn {% if user_vote == -1 %}down-active{% endif %}" onclick="vote({{ post.pk }}, -1)" id="down-btn"><i class="bi bi-arrow-down-circle-fill"></i></button>
+            <button class="vote-btn {% if user_vote == 1 %}up-active{% endif %}"
+                    onclick="vote({{ post.pk }}, 1)" id="up-btn"
+                    title="Upvote">
+              <i class="bi bi-arrow-up-circle-fill"></i>
+            </button>
+            <span id="vote-score-desk"
+                  class="{% if post.score > 0 %}positive{% elif post.score < 0 %}negative{% else %}zero{% endif %}">{{ post.score }}</span>
+            <button class="vote-btn {% if user_vote == -1 %}down-active{% endif %}"
+                    onclick="vote({{ post.pk }}, -1)" id="down-btn"
+                    title="Downvote">
+              <i class="bi bi-arrow-down-circle-fill"></i>
+            </button>
             {% else %}
-            <span class="vote-score">{{ post.score }}</span>
+            <span id="vote-score-desk"
+                  class="{% if post.score > 0 %}positive{% elif post.score < 0 %}negative{% else %}zero{% endif %}">{{ post.score }}</span>
             {% endif %}
           </div>
-          <!-- Content -->
-          <div class="flex-grow-1">
+
+          <!-- Post content -->
+          <div class="flex-grow-1" style="min-width:0">
+            <!-- Meta row -->
             <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
               <a href="{% url 'communities:detail' post.community.slug %}" class="badge-comm">c/{{ post.community.name }}</a>
-              <span class="post-meta">Posted by <a href="{% url 'accounts:profile' post.author.username %}">u/{{ post.author.username }}</a> · {{ post.created_at|timesince }} ago</span>
+              <span class="post-meta">
+                Posted by
+                <a href="{% url 'accounts:profile' post.author.username %}">u/{{ post.author.username }}</a>
+                · {{ post.created_at|timesince }} ago
+              </span>
             </div>
-            <h4 class="mb-3">{{ post.title }}</h4>
-            {% if post.body %}<p style="line-height:1.7;white-space:pre-wrap">{{ post.body }}</p>{% endif %}
-            {% if post.url %}<a href="{{ post.url }}" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm"><i class="bi bi-link-45deg me-1"></i>Visit Link</a>{% endif %}
-            {% if post.image %}<img src="{{ post.image.url }}" alt="" class="img-fluid rounded mt-2">{% endif %}
-            <div class="d-flex gap-3 mt-3 post-meta">
-              <span><i class="bi bi-chat me-1"></i>{{ post.total_comment_count }} comments</span>
+
+            <h4 class="mb-3" style="font-weight:700;line-height:1.35">{{ post.title }}</h4>
+
+            {% if post.body %}
+            <div style="line-height:1.75;white-space:pre-wrap;font-size:.93rem;color:var(--nb-text)">{{ post.body }}</div>
+            {% endif %}
+
+            {% if post.url %}
+            <a href="{{ post.url }}" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm mt-2">
+              <i class="bi bi-link-45deg me-1"></i>Visit Link
+            </a>
+            {% endif %}
+
+            {% if post.image %}
+            <img src="{{ post.image.url }}" alt="" class="img-fluid rounded mt-3" style="max-width:100%">
+            {% endif %}
+
+            <!-- Vote row — mobile only (below content) -->
+            <div class="vote-col-mobile">
+              {% if user.is_authenticated %}
+              <button class="vote-btn {% if user_vote == 1 %}up-active{% endif %}"
+                      onclick="vote({{ post.pk }}, 1)" id="up-btn-mob" title="Upvote">
+                <i class="bi bi-arrow-up-circle-fill"></i>
+              </button>
+              <span id="vote-score-mob"
+                    class="{% if post.score > 0 %}positive{% elif post.score < 0 %}negative{% else %}zero{% endif %}">{{ post.score }}</span>
+              <button class="vote-btn {% if user_vote == -1 %}down-active{% endif %}"
+                      onclick="vote({{ post.pk }}, -1)" id="down-btn-mob" title="Downvote">
+                <i class="bi bi-arrow-down-circle-fill"></i>
+              </button>
+              {% else %}
+              <span id="vote-score-mob"
+                    class="{% if post.score > 0 %}positive{% elif post.score < 0 %}negative{% else %}zero{% endif %}">{{ post.score }}</span>
+              {% endif %}
+              <span class="post-meta ms-2"><i class="bi bi-chat me-1"></i>{{ post.comment_count }} comments</span>
+            </div>
+
+            <!-- Footer row -->
+            <div class="d-none d-sm-flex gap-3 mt-3 post-meta align-items-center">
+              <span><i class="bi bi-chat me-1"></i>{{ post.comment_count }} comments</span>
               {% if user == post.author %}
-              <form method="post" action="{% url 'posts:delete' post.pk %}" class="d-inline" onsubmit="return confirm('Delete this post?')">{% csrf_token %}
-                <button type="submit" class="btn btn-link p-0 text-danger" style="font-size:.82rem"><i class="bi bi-trash me-1"></i>Delete</button>
+              <form method="post" action="{% url 'posts:delete' post.pk %}" class="d-inline"
+                    onsubmit="return confirm('Permanently delete this post?')">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-link p-0 text-danger" style="font-size:.82rem">
+                  <i class="bi bi-trash me-1"></i>Delete
+                </button>
               </form>
               {% endif %}
             </div>
@@ -40,118 +177,208 @@
       </div>
     </div>
 
-    <!-- Comment Form -->
+    <!-- ── Comment Form ────────────────────────────────── -->
     {% if user.is_authenticated %}
     <div class="card mb-3">
-      <div class="card-body">
-        <h6 class="mb-3">Add a comment</h6>
-        <form method="post" action="{% url 'posts:add_comment' post.pk %}">
-          {% csrf_token %}
-          {{ comment_form.body }}
-          <button type="submit" class="btn btn-primary btn-sm mt-2">Comment</button>
-        </form>
+      <div class="card-body p-3">
+        <div class="d-flex gap-2 align-items-start">
+          <img src="{{ user.get_avatar_url }}" alt="" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;margin-top:2px">
+          <form method="post" action="{% url 'posts:add_comment' post.pk %}" class="flex-grow-1">
+            {% csrf_token %}
+            <textarea
+              name="body"
+              class="form-control comment-textarea"
+              rows="3"
+              placeholder="Share your thoughts…"
+              maxlength="5000"
+              id="mainCommentBox"
+              oninput="countChars(this, 'mainCounter', 5000)"></textarea>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+              <span class="char-counter" id="mainCounter">0 / 5000</span>
+              <button type="submit" class="btn btn-primary btn-sm px-4">
+                <i class="bi bi-send me-1"></i>Comment
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
     {% else %}
     <div class="card mb-3">
-      <div class="card-body text-center">
-        <p class="text-muted mb-2">Log in to comment</p>
-        <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-sm">Login</a>
+      <div class="card-body text-center py-3">
+        <p class="text-muted mb-2" style="font-size:.9rem">Log in to join the conversation</p>
+        <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-sm px-4">Login</a>
+        <a href="{% url 'accounts:register' %}" class="btn btn-outline-primary btn-sm px-4 ms-2">Sign Up</a>
       </div>
     </div>
     {% endif %}
 
-    <!-- Comments -->
-    <h6 class="text-muted mb-2" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.08em">{{ post.total_comment_count }} Comments</h6>
+    <!-- ── Comments ────────────────────────────────────── -->
+    <div class="d-flex align-items-center gap-2 mb-2">
+      <h6 class="mb-0 text-muted" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;font-weight:700">
+        {{ post.comment_count }} Comments
+      </h6>
+    </div>
+
     {% for comment in comments %}
     <div class="comment-card" id="comment-{{ comment.pk }}">
+      <!-- Author chip -->
       <div class="d-flex align-items-center gap-2 mb-2">
-        <img src="{{ comment.author.get_avatar_url }}" alt="" style="width:24px;height:24px;border-radius:50%">
-        <a href="{% url 'accounts:profile' comment.author.username %}" style="font-size:.85rem;font-weight:600;color:var(--nb-primary);text-decoration:none">{{ comment.author.username }}</a>
-        <span class="text-muted" style="font-size:.78rem">{{ comment.created_at|timesince }} ago</span>
+        <a href="{% url 'accounts:profile' comment.author.username %}" class="author-chip">
+          <img src="{{ comment.author.get_avatar_url }}" alt="">
+          <span>{{ comment.author.username }}</span>
+        </a>
+        <span class="text-muted" style="font-size:.75rem">{{ comment.created_at|timesince }} ago</span>
       </div>
+
       {% if comment.is_deleted %}
-      <p class="text-muted fst-italic mb-1">[deleted]</p>
+      <p class="text-muted fst-italic mb-1" style="font-size:.88rem">[deleted]</p>
       {% else %}
-      <p class="mb-2" style="white-space:pre-wrap;line-height:1.6">{{ comment.body }}</p>
+      <p class="mb-2" style="white-space:pre-wrap;line-height:1.7;font-size:.92rem">{{ comment.body }}</p>
       {% endif %}
+
       {% if user.is_authenticated and not comment.is_deleted %}
-      <button class="btn btn-link p-0 text-muted" style="font-size:.8rem" onclick="showReplyForm({{ comment.pk }})"><i class="bi bi-reply me-1"></i>Reply</button>
+      <button class="btn btn-link p-0 text-muted" style="font-size:.78rem"
+              onclick="showReplyForm({{ comment.pk }})">
+        <i class="bi bi-reply me-1"></i>Reply
+      </button>
       <div id="reply-form-{{ comment.pk }}" style="display:none;margin-top:.75rem">
         <form method="post" action="{% url 'posts:add_comment' post.pk %}">
           {% csrf_token %}
           <input type="hidden" name="parent_id" value="{{ comment.pk }}">
-          <textarea name="body" class="form-control mb-2" rows="2" placeholder="Reply..."></textarea>
-          <button type="submit" class="btn btn-primary btn-sm">Reply</button>
-          <button type="button" class="btn btn-link btn-sm text-muted" onclick="hideReplyForm({{ comment.pk }})">Cancel</button>
+          <textarea
+            name="body"
+            class="form-control"
+            rows="2"
+            placeholder="Write a reply…"
+            maxlength="5000"
+            id="reply-box-{{ comment.pk }}"
+            oninput="countChars(this, 'reply-counter-{{ comment.pk }}', 5000)"></textarea>
+          <div class="d-flex justify-content-between align-items-center mt-2">
+            <span class="char-counter" id="reply-counter-{{ comment.pk }}">0 / 5000</span>
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-link btn-sm text-muted p-0"
+                      onclick="hideReplyForm({{ comment.pk }})">Cancel</button>
+              <button type="submit" class="btn btn-primary btn-sm px-3">Reply</button>
+            </div>
+          </div>
         </form>
       </div>
       {% endif %}
 
-      <!-- Replies -->
+      <!-- Nested replies -->
       {% for reply in comment.replies.all %}
-      <div class="reply-indent mt-2">
+      <div class="reply-indent">
         <div class="d-flex align-items-center gap-2 mb-1">
-          <img src="{{ reply.author.get_avatar_url }}" alt="" style="width:20px;height:20px;border-radius:50%">
-          <a href="{% url 'accounts:profile' reply.author.username %}" style="font-size:.82rem;font-weight:600;color:var(--nb-primary);text-decoration:none">{{ reply.author.username }}</a>
-          <span class="text-muted" style="font-size:.75rem">{{ reply.created_at|timesince }} ago</span>
+          <a href="{% url 'accounts:profile' reply.author.username %}" class="author-chip" style="padding:2px 8px 2px 2px">
+            <img src="{{ reply.author.get_avatar_url }}" alt="" style="width:18px;height:18px">
+            <span style="font-size:.78rem">{{ reply.author.username }}</span>
+          </a>
+          <span class="text-muted" style="font-size:.72rem">{{ reply.created_at|timesince }} ago</span>
         </div>
-        <p class="mb-0" style="font-size:.9rem;white-space:pre-wrap">{{ reply.body }}</p>
+        <p class="mb-0" style="font-size:.88rem;white-space:pre-wrap;line-height:1.65">{{ reply.body }}</p>
       </div>
       {% endfor %}
     </div>
+
     {% empty %}
-    <div class="card">
-      <div class="card-body text-center py-4">
-        <p class="text-muted mb-0">No comments yet. Be the first!</p>
-      </div>
+    <div class="comments-empty">
+      <svg width="52" height="52" viewBox="0 0 52 52" fill="none" style="opacity:.2;margin-bottom:.75rem" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 8C6 6.9 6.9 6 8 6h36c1.1 0 2 .9 2 2v26c0 1.1-.9 2-2 2H14l-8 8V8z" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+        <line x1="15" y1="17" x2="37" y2="17" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="15" y1="24" x2="30" y2="24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <h6 class="text-muted" style="font-weight:600">No one has replied yet.</h6>
+      <p class="text-muted mb-0" style="font-size:.875rem">Start the conversation 👇</p>
     </div>
     {% endfor %}
+
   </div>
 
-  <!-- Sidebar -->
+  <!-- ── Sidebar ─────────────────────────────────────── -->
   <div class="col-lg-4">
+    <!-- Community widget -->
     <div class="sidebar-widget">
-      <h6>📌 About c/{{ post.community.name }}</h6>
-      <p class="text-muted mb-2" style="font-size:.85rem">{{ post.community.description|truncatechars:150 }}</p>
-      <div class="d-flex justify-content-between text-muted" style="font-size:.82rem">
-        <span>{{ post.community.member_count }} members</span>
-        <span>{{ post.community.post_count }} posts</span>
+      <h6>📌 c/{{ post.community.name }}</h6>
+      <p class="text-muted mb-2" style="font-size:.84rem;line-height:1.6">{{ post.community.description|truncatechars:150 }}</p>
+      <div class="d-flex justify-content-between text-muted mb-3" style="font-size:.8rem">
+        <span><strong style="color:var(--nb-text)">{{ post.community.member_count }}</strong> members</span>
+        <span><strong style="color:var(--nb-text)">{{ post.community.post_count }}</strong> posts</span>
       </div>
-      <a href="{% url 'communities:detail' post.community.slug %}" class="btn btn-outline-primary btn-sm w-100 mt-3">Visit Community</a>
+      <a href="{% url 'communities:detail' post.community.slug %}" class="btn btn-outline-primary btn-sm w-100">
+        Visit Community
+      </a>
     </div>
+
+    <!-- Author widget -->
     <div class="sidebar-widget">
-      <h6>👤 About u/{{ post.author.username }}</h6>
+      <h6>👤 u/{{ post.author.username }}</h6>
       <div class="d-flex align-items-center gap-2 mb-2">
         <img src="{{ post.author.get_avatar_url }}" alt="" class="user-avatar">
         <div>
-          <a href="{% url 'accounts:profile' post.author.username %}" style="color:var(--nb-primary);text-decoration:none;font-weight:600">{{ post.author.username }}</a>
-          <div class="text-muted" style="font-size:.78rem">{{ post.author.reputation }} reputation</div>
+          <a href="{% url 'accounts:profile' post.author.username %}"
+             style="color:var(--nb-primary-light);text-decoration:none;font-weight:600;font-size:.9rem">
+            {{ post.author.username }}
+          </a>
+          <div class="text-muted" style="font-size:.76rem;margin-top:1px">
+            <i class="bi bi-star-fill me-1" style="color:var(--nb-accent-warm)"></i>{{ post.author.reputation }} reputation
+          </div>
         </div>
       </div>
-      {% if post.author.bio %}<p class="text-muted mb-0" style="font-size:.82rem">{{ post.author.bio|truncatechars:120 }}</p>{% endif %}
+      {% if post.author.bio %}
+      <p class="text-muted mb-0" style="font-size:.82rem;line-height:1.55">{{ post.author.bio|truncatechars:120 }}</p>
+      {% endif %}
     </div>
   </div>
 </div>
 
 <script>
+/* ── Reply form helpers ── (preserved exactly) */
 function showReplyForm(id) { document.getElementById('reply-form-'+id).style.display='block'; }
 function hideReplyForm(id) { document.getElementById('reply-form-'+id).style.display='none'; }
 
+/* ── Character counter ── */
+function countChars(textarea, counterId, max) {
+  var len = textarea.value.length;
+  var el = document.getElementById(counterId);
+  if (!el) return;
+  el.textContent = len + ' / ' + max;
+  el.className = 'char-counter' + (len > max * 0.9 ? (len >= max ? ' over' : ' warn') : '');
+}
+
+/* ── Vote function ── (logic preserved exactly, visual updated) */
 {% if user.is_authenticated %}
 let currentVote = {{ user_vote|default:"null" }};
+
+function updateScoreDisplay(score) {
+  var cls = score > 0 ? 'positive' : (score < 0 ? 'negative' : 'zero');
+  ['vote-score-desk', 'vote-score-mob'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) { el.textContent = score; el.className = cls; }
+  });
+}
+
+function updateButtonStates(userVote) {
+  var ids = [['up-btn','up-btn-mob'], ['down-btn','down-btn-mob']];
+  ids[0].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.className = 'vote-btn' + (userVote === 1 ? ' up-active' : '');
+  });
+  ids[1].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.className = 'vote-btn' + (userVote === -1 ? ' down-active' : '');
+  });
+}
+
 function vote(postId, value) {
-  const form = new FormData();
+  var form = new FormData();
   form.append('value', value);
   form.append('csrfmiddlewaretoken', '{{ csrf_token }}');
-  fetch(`/posts/${postId}/vote/`, {method:'POST', body: form})
-    .then(r => r.json())
-    .then(data => {
-      document.getElementById('vote-score').textContent = data.score;
-      const upBtn = document.getElementById('up-btn');
-      const downBtn = document.getElementById('down-btn');
-      upBtn.className = 'vote-btn' + (data.user_vote === 1 ? ' up-active' : '');
-      downBtn.className = 'vote-btn' + (data.user_vote === -1 ? ' down-active' : '');
+  fetch('/posts/' + postId + '/vote/', {method:'POST', body: form})
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      updateScoreDisplay(data.score);
+      updateButtonStates(data.user_vote);
       currentVote = data.user_vote;
     });
 }
