@@ -1,37 +1,90 @@
 {% extends 'base.html' %}
-{% block title %}c/{{ community.name }}{% include 'includes/pagination.html' %}
+{% block title %}c/{{ community.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .comm-banner {
+    height: 120px;
+    object-fit: cover;
+    width: 100%;
+    border-radius: 12px 12px 0 0;
+    display: block;
+  }
+  .comm-banner-gradient {
+    height: 120px;
+    background: linear-gradient(135deg, var(--nb-primary) 0%, var(--nb-accent) 100%);
+    border-radius: 12px 12px 0 0;
+  }
+  .comm-stat-pills { display: flex; gap: 10px; margin-top: 0.75rem; }
+  .comm-stat-pill {
+    flex: 1;
+    background: var(--nb-surface-2);
+    border: 1px solid var(--nb-border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    text-align: center;
+  }
+  .comm-stat-pill .val { display: block; font-size: 1.15rem; font-weight: 700; color: var(--nb-text); }
+  .comm-stat-pill .lbl { font-size: 0.68rem; color: var(--nb-text-muted); text-transform: uppercase; letter-spacing: .06em; }
+
+  /* Join button pulse when not joined */
+  @keyframes join-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(37,99,235,0.5); }
+    50% { box-shadow: 0 0 0 6px rgba(37,99,235,0); }
+  }
+  .btn-join-pulse { animation: join-pulse 2s infinite; }
+</style>
 {% endblock %}
+
 {% block content %}
 <div class="row g-3">
   <div class="col-lg-8">
-    <!-- Community Header -->
-    <div class="card mb-3">
+
+    <!-- Community Header Card -->
+    <div class="card mb-3" style="overflow:hidden">
       {% if community.banner %}
-      <img src="{{ community.banner.url }}" alt="" class="img-fluid rounded-top" style="height:140px;object-fit:cover">
+      <img src="{{ community.banner.url }}" alt="" class="comm-banner">
       {% else %}
-      <div style="height:80px;background:linear-gradient(135deg,var(--nb-primary),var(--nb-accent));border-radius:12px 12px 0 0;opacity:.7"></div>
+      <div class="comm-banner-gradient"></div>
       {% endif %}
-      <div class="card-body pt-2">
+      <div class="card-body pt-3">
         <div class="d-flex align-items-start justify-content-between flex-wrap gap-2">
-          <div>
-            <h4 class="mb-1">c/{{ community.name }}</h4>
-            <p class="text-muted mb-2" style="font-size:.9rem">{{ community.description }}</p>
-            <div class="d-flex gap-3 text-muted" style="font-size:.83rem">
-              <span><strong>{{ community.member_count }}</strong> members</span>
-              <span><strong>{{ community.post_count }}</strong> posts</span>
-              <span>Created {{ community.created_at|date:"M d, Y" }}</span>
+          <div class="flex-grow-1">
+            <h4 class="mb-1" style="font-weight:700">c/{{ community.name }}</h4>
+            <p class="text-muted mb-0" style="font-size:.88rem;line-height:1.6;max-width:480px">{{ community.description }}</p>
+            <div class="comm-stat-pills">
+              <div class="comm-stat-pill">
+                <span class="val">{{ community.member_count }}</span>
+                <span class="lbl">Members</span>
+              </div>
+              <div class="comm-stat-pill">
+                <span class="val">{{ community.post_count }}</span>
+                <span class="lbl">Posts</span>
+              </div>
+              <div class="comm-stat-pill" style="flex:2;text-align:left">
+                <span class="lbl">Created</span>
+                <span class="val" style="font-size:.85rem;margin-top:2px">{{ community.created_at|date:"M d, Y" }}</span>
+              </div>
             </div>
           </div>
-          <div class="d-flex gap-2">
+          <!-- Actions -->
+          <div class="d-flex flex-column gap-2 mt-1">
             {% if user.is_authenticated %}
             <form method="post" action="{% url 'communities:join' community.slug %}">
               {% csrf_token %}
-              <button type="submit" class="btn btn-{% if is_member %}outline-primary{% else %}primary{% endif %} btn-sm">
-                {% if is_member %}<i class="bi bi-check me-1"></i>Joined{% else %}<i class="bi bi-plus me-1"></i>Join{% endif %}
+              <button type="submit" class="btn btn-sm px-4
+                {% if is_member %}btn-outline-primary{% else %}btn-primary btn-join-pulse{% endif %}">
+                {% if is_member %}
+                  <i class="bi bi-check-circle-fill me-1" style="color:var(--nb-success)"></i>Joined
+                {% else %}
+                  <i class="bi bi-plus-lg me-1"></i>Join
+                {% endif %}
               </button>
             </form>
             {% if is_member %}
-            <a href="{% url 'posts:create' %}?community={{ community.slug }}" class="btn btn-primary btn-sm"><i class="bi bi-pencil me-1"></i>Post</a>
+            <a href="{% url 'posts:create' %}?community={{ community.slug }}" class="btn btn-primary btn-sm px-4">
+              <i class="bi bi-pencil me-1"></i>Post
+            </a>
             {% endif %}
             {% endif %}
           </div>
@@ -41,49 +94,90 @@
 
     <!-- Posts -->
     {% for post in page_obj %}
-    <div class="card card-hover mb-2" onclick="window.location='{% url 'posts:detail' post.pk %}'">
+    <div class="card card-hover post-card mb-2" onclick="window.location='{% url 'posts:detail' post.pk %}'">
       <div class="card-body py-3">
         <div class="d-flex gap-3">
-          <div class="d-flex flex-column align-items-center pt-1" style="min-width:36px">
-            <span class="vote-score">{{ post.score }}</span>
-            <i class="bi bi-arrow-up-circle text-muted" style="font-size:.85rem"></i>
+          <!-- Score -->
+          <div class="d-flex flex-column align-items-center justify-content-center" style="min-width:36px">
+            <span class="{% if post.score > 0 %}feed-score pos{% elif post.score < 0 %}feed-score neg{% else %}feed-score zero{% endif %}"
+                  style="font-size:1rem;font-weight:700;min-width:32px;text-align:center">{{ post.score }}</span>
+            <span class="text-muted" style="font-size:.62rem">pts</span>
           </div>
           <div class="flex-grow-1">
-            <div class="post-meta mb-1">Posted by <a href="{% url 'accounts:profile' post.author.username %}" onclick="event.stopPropagation()">u/{{ post.author.username }}</a> · {{ post.created_at|timesince }} ago</div>
+            <div class="post-meta mb-1">
+              Posted by <a href="{% url 'accounts:profile' post.author.username %}" onclick="event.stopPropagation()">u/{{ post.author.username }}</a>
+              · {{ post.created_at|timesince }} ago
+            </div>
             <a href="{% url 'posts:detail' post.pk %}" class="post-title-link" onclick="event.stopPropagation()">{{ post.title }}</a>
-            {% if post.body %}<p class="text-muted mb-1 mt-1" style="font-size:.88rem">{{ post.body|truncatechars:180 }}</p>{% endif %}
-            <div class="post-meta mt-1"><a href="{% url 'posts:detail' post.pk %}" onclick="event.stopPropagation()"><i class="bi bi-chat me-1"></i>{{ post.comment_count }} comments</a></div>
+            {% if post.body %}
+            <p class="text-muted mb-1 mt-1" style="font-size:.86rem;line-height:1.5">{{ post.body|truncatechars:180 }}</p>
+            {% endif %}
+            <div class="post-meta mt-1">
+              <a href="{% url 'posts:detail' post.pk %}" onclick="event.stopPropagation()">
+                <i class="bi bi-chat me-1"></i>{{ post.comment_count }} comments
+              </a>
+            </div>
           </div>
         </div>
       </div>
     </div>
     {% empty %}
-    <div class="card"><div class="card-body text-center py-5">
-      <div style="font-size:3rem;opacity:.3">📭</div>
-      <h5 class="text-muted mt-2">No posts yet</h5>
-      {% if is_member %}<a href="{% url 'posts:create' %}?community={{ community.slug }}" class="btn btn-primary mt-2">Create First Post</a>{% endif %}
-    </div></div>
+    <div class="card">
+      <div class="card-body text-center py-5">
+        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" style="opacity:.2;margin-bottom:.75rem" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="30" cy="30" r="26" stroke="currentColor" stroke-width="3"/>
+          <path d="M20 30h20M30 20v20" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+        <h5 class="text-muted">No posts yet</h5>
+        <p class="text-muted mb-3" style="font-size:.875rem">Be the first to post in this community.</p>
+        {% if is_member %}
+        <a href="{% url 'posts:create' %}?community={{ community.slug }}" class="btn btn-primary btn-sm px-4">Create First Post</a>
+        {% elif user.is_authenticated %}
+        <form method="post" action="{% url 'communities:join' community.slug %}" class="d-inline">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-primary btn-sm px-4">Join to Post</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
     {% endfor %}
+    {% include 'includes/pagination.html' %}
   </div>
 
+  <!-- Sidebar -->
   <div class="col-lg-4">
     <div class="sidebar-widget">
-      <h6>ℹ️ About this community</h6>
-      <p class="text-muted mb-2" style="font-size:.85rem">{{ community.description }}</p>
-      <div class="d-flex justify-content-between text-muted mb-1" style="font-size:.82rem"><span>Members</span><strong>{{ community.member_count }}</strong></div>
-      <div class="d-flex justify-content-between text-muted" style="font-size:.82rem"><span>Created by</span><a href="{% if community.created_by %}{% url 'accounts:profile' community.created_by.username %}{% else %}#{% endif %}" style="color:var(--nb-primary);text-decoration:none">{{ community.created_by.username|default:"deleted" }}</a></div>
+      <h6>ℹ️ About this Community</h6>
+      <p class="text-muted mb-3" style="font-size:.84rem;line-height:1.6">{{ community.description }}</p>
+      <div class="d-flex justify-content-between align-items-center py-1 border-bottom" style="border-color:var(--nb-border)!important">
+        <span class="text-muted" style="font-size:.82rem">Members</span>
+        <strong>{{ community.member_count }}</strong>
+      </div>
+      <div class="d-flex justify-content-between align-items-center py-1 border-bottom" style="border-color:var(--nb-border)!important">
+        <span class="text-muted" style="font-size:.82rem">Posts</span>
+        <strong>{{ community.post_count }}</strong>
+      </div>
+      <div class="d-flex justify-content-between align-items-center py-1">
+        <span class="text-muted" style="font-size:.82rem">Created by</span>
+        <a href="{% if community.created_by %}{% url 'accounts:profile' community.created_by.username %}{% else %}#{% endif %}"
+           style="color:var(--nb-primary-light);text-decoration:none;font-weight:600;font-size:.82rem">
+          {{ community.created_by.username|default:"deleted" }}
+        </a>
+      </div>
       {% if user.is_authenticated and is_member %}
       <hr>
-      <a href="{% url 'posts:create' %}?community={{ community.slug }}" class="btn btn-primary btn-sm w-100"><i class="bi bi-pencil me-1"></i>Create Post</a>
+      <a href="{% url 'posts:create' %}?community={{ community.slug }}" class="btn btn-primary btn-sm w-100">
+        <i class="bi bi-pencil me-1"></i>Create Post
+      </a>
       {% endif %}
     </div>
+
     {% if community.rules %}
     <div class="sidebar-widget">
       <h6>📜 Community Rules</h6>
-      <p class="text-muted mb-0" style="font-size:.84rem;white-space:pre-wrap">{{ community.rules }}</p>
+      <p class="text-muted mb-0" style="font-size:.83rem;white-space:pre-wrap;line-height:1.6">{{ community.rules }}</p>
     </div>
     {% endif %}
   </div>
 </div>
-{% include 'includes/pagination.html' %}
 {% endblock %}
