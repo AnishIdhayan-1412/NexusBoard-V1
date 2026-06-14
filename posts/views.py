@@ -10,7 +10,7 @@ from .models import Post, Comment, Vote, CommentVote
 from .forms import PostCreateForm, CommentForm
 from communities.models import Community, Membership
 
-logger = logging.getLogger('nexusboard')
+logger = logging.getLogger('canopy')
 
 PAGE_SIZE = 20
 

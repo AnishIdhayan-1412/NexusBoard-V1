@@ -1,5 +1,5 @@
 """
-NexusBoard Settings
+Canopy Settings
 Production-ready Django configuration with environment-based overrides.
 """
 import os
@@ -90,7 +90,7 @@ if _REDIS_URL:
                 'SOCKET_CONNECT_TIMEOUT': 5,
                 'SOCKET_TIMEOUT': 5,
             },
-            'KEY_PREFIX': 'nexusboard',
+            'KEY_PREFIX': 'canopy',
         }
     }
     SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
@@ -212,7 +212,7 @@ LOGGING = {
         },
         'file': {
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': BASE_DIR / 'logs' / 'nexusboard.log',
+            'filename': BASE_DIR / 'logs' / 'canopy.log',
             'maxBytes': 1024 * 1024 * 5,
             'backupCount': 5,
             'formatter': 'verbose',
@@ -228,7 +228,7 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False,
         },
-        'nexusboard': {
+        'canopy': {
             'handlers': ['console', 'file'],
             'level': 'DEBUG' if DEBUG else 'INFO',
             'propagate': False,

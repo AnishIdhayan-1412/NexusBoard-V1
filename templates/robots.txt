@@ -1,8 +1,5 @@
 User-agent: *
-Disallow: /admin/
-Disallow: /accounts/login/
-Disallow: /accounts/register/
-Disallow: /media/
-
-User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /accounts/edit/
+Sitemap: https://nexusboard-v1-production.up.railway.app/sitemap.xml

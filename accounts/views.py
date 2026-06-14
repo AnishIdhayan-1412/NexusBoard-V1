@@ -8,7 +8,7 @@ from .models import User, Follow
 from .forms import RegisterForm, LoginForm, ProfileEditForm
 from django_ratelimit.decorators import ratelimit
 
-logger = logging.getLogger('nexusboard')
+logger = logging.getLogger('canopy')
 
 @ratelimit(key='ip', rate='5/m', method='POST', block=True)
 def register_view(request):
@@ -20,7 +20,7 @@ def register_view(request):
             user = form.save()
             login(request, user)
             logger.info(f"New user registered: {user.username}")
-            messages.success(request, f"Welcome to NexusBoard, {user.username}! 🎉")
+            messages.success(request, f"Welcome to Canopy, {user.username}! 🎉")
             return redirect('core:home')
     else:
         form = RegisterForm()

@@ -8,7 +8,7 @@ from posts.models import Post
 from communities.models import Community, Membership
 from accounts.models import User
 
-logger = logging.getLogger('nexusboard')
+logger = logging.getLogger('canopy')
 
 PAGE_SIZE = 20
 
@@ -84,4 +84,4 @@ def health_check_view(request):
         db_ok = False
     status = 'healthy' if db_ok else 'degraded'
     code = 200 if db_ok else 503
-    return JsonResponse({'status': status, 'app': 'NexusBoard', 'db': db_ok}, status=code)
+    return JsonResponse({'status': status, 'app': 'Canopy', 'db': db_ok}, status=code)

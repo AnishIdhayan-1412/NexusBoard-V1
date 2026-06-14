@@ -8,7 +8,7 @@ from django.db import transaction
 from .models import Community, Membership
 from .forms import CommunityCreateForm
 
-logger = logging.getLogger('nexusboard')
+logger = logging.getLogger('canopy')
 
 PAGE_SIZE = 20
 
