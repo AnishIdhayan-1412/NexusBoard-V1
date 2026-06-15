@@ -91,9 +91,9 @@
             <!-- Content -->
             <div class="flex-grow-1 min-width-0">
               <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-                <a href="{% url 'communities:detail' post.community.slug %}" class="badge-comm" onclick="event.stopPropagation()">c/{{ post.community.name }}</a>
+                <a href="{% url 'communities:detail' post.community.slug %}" class="badge-comm" onclick="event.stopPropagation()">{{ post.community.name }}</a>
                 <span class="post-meta">
-                  <a href="{% url 'accounts:profile' post.author.username %}" onclick="event.stopPropagation()">u/{{ post.author.username }}</a>
+                  <a href="{% url 'accounts:profile' post.author.username %}" onclick="event.stopPropagation()">{{ post.author.username }}</a>
                   · {{ post.created_at|timesince }} ago
                 </span>
               </div>
@@ -168,7 +168,7 @@
       {% for community in trending_communities %}
       <a href="{% url 'communities:detail' community.slug %}" class="community-link">
         <span class="community-dot" style="background:{{ community.slug|slice:'0:1'|lower|default:'#2563eb' }}"></span>
-        <span class="flex-grow-1" style="font-size:.88rem">c/{{ community.name }}</span>
+        <span class="flex-grow-1" style="font-size:.88rem">{{ community.name }}</span>
         <span class="member-pill">{{ community.member_count }}</span>
       </a>
       {% empty %}

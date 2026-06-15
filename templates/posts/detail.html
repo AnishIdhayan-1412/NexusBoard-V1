@@ -115,10 +115,10 @@
           <div class="flex-grow-1" style="min-width:0">
             <!-- Meta row -->
             <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
-              <a href="{% url 'communities:detail' post.community.slug %}" class="badge-comm">c/{{ post.community.name }}</a>
+              <a href="{% url 'communities:detail' post.community.slug %}" class="badge-comm">{{ post.community.name }}</a>
               <span class="post-meta">
                 Posted by
-                <a href="{% url 'accounts:profile' post.author.username %}">u/{{ post.author.username }}</a>
+                <a href="{% url 'accounts:profile' post.author.username %}">{{ post.author.username }}</a>
                 · {{ post.created_at|timesince }} ago
               </span>
             </div>
@@ -299,7 +299,7 @@
   <div class="col-lg-4">
     <!-- Community widget -->
     <div class="sidebar-widget">
-      <h6>📌 c/{{ post.community.name }}</h6>
+      <h6>📌 {{ post.community.name }}</h6>
       <p class="text-muted mb-2" style="font-size:.84rem;line-height:1.6">{{ post.community.description|truncatechars:150 }}</p>
       <div class="d-flex justify-content-between text-muted mb-3" style="font-size:.8rem">
         <span><strong style="color:var(--nb-text)">{{ post.community.member_count }}</strong> members</span>
@@ -312,7 +312,7 @@
 
     <!-- Author widget -->
     <div class="sidebar-widget">
-      <h6>👤 u/{{ post.author.username }}</h6>
+      <h6>👤 {{ post.author.username }}</h6>
       <div class="d-flex align-items-center gap-2 mb-2">
         <img src="{{ post.author.get_avatar_url }}" alt="" class="user-avatar">
         <div>

@@ -138,7 +138,7 @@
     <div class="card card-hover post-card mb-2">
       <div class="card-body py-3">
         <div class="d-flex align-items-center gap-2 mb-1">
-          <a href="{% url 'communities:detail' post.community.slug %}" class="badge-comm">c/{{ post.community.name }}</a>
+          <a href="{% url 'communities:detail' post.community.slug %}" class="badge-comm">{{ post.community.name }}</a>
           <span class="text-muted" style="font-size:.78rem">{{ post.created_at|timesince }} ago</span>
         </div>
         <a href="{% url 'posts:detail' post.pk %}" class="post-title-link">{{ post.title }}</a>

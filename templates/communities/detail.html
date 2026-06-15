@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}c/{{ community.name }}{% endblock %}
+{% block title %}{{ community.name }}{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -50,7 +50,7 @@
       <div class="card-body pt-3">
         <div class="d-flex align-items-start justify-content-between flex-wrap gap-2">
           <div class="flex-grow-1">
-            <h4 class="mb-1" style="font-weight:700">c/{{ community.name }}</h4>
+            <h4 class="mb-1" style="font-weight:700">{{ community.name }}</h4>
             <p class="text-muted mb-0" style="font-size:.88rem;line-height:1.6;max-width:480px">{{ community.description }}</p>
             <div class="comm-stat-pills">
               <div class="comm-stat-pill">
@@ -105,7 +105,7 @@
           </div>
           <div class="flex-grow-1">
             <div class="post-meta mb-1">
-              Posted by <a href="{% url 'accounts:profile' post.author.username %}" onclick="event.stopPropagation()">u/{{ post.author.username }}</a>
+              Posted by <a href="{% url 'accounts:profile' post.author.username %}" onclick="event.stopPropagation()">{{ post.author.username }}</a>
               · {{ post.created_at|timesince }} ago
             </div>
             <a href="{% url 'posts:detail' post.pk %}" class="post-title-link" onclick="event.stopPropagation()">{{ post.title }}</a>

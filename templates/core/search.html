@@ -89,7 +89,7 @@
       <a href="{% url 'communities:detail' c.slug %}" class="search-comm-card">
         <div class="search-comm-icon">{{ c.name|slice:'0:1'|upper }}</div>
         <div style="min-width:0">
-          <div style="font-weight:600;font-size:.88rem">c/{{ c.name }}</div>
+          <div style="font-weight:600;font-size:.88rem">{{ c.name }}</div>
           <div class="text-muted" style="font-size:.75rem">{{ c.member_count }} member{{ c.member_count|pluralize }}</div>
         </div>
       </a>
@@ -114,7 +114,7 @@
         <div class="flex-grow-1" style="min-width:0">
           <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
             <a href="{% url 'communities:detail' post.community.slug %}" class="badge-comm"
-               onclick="event.stopPropagation()">c/{{ post.community.name }}</a>
+               onclick="event.stopPropagation()">{{ post.community.name }}</a>
             <span class="post-meta">{{ post.created_at|timesince }} ago</span>
           </div>
           <a href="{% url 'posts:detail' post.pk %}" class="post-title-link d-block"
