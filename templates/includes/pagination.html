@@ -1,19 +1,36 @@
 {% if page_obj.has_other_pages %}
-<nav aria-label="Page navigation" class="mt-3">
-  <ul class="pagination pagination-sm justify-content-center">
+<nav aria-label="Page navigation" class="mt-4">
+  <ul class="pagination pagination-sm justify-content-center gap-1" style="--bs-pagination-bg:transparent;--bs-pagination-border-color:var(--nb-border);--bs-pagination-color:var(--nb-text-muted);--bs-pagination-hover-bg:var(--nb-surface-2);--bs-pagination-hover-color:var(--nb-text);--bs-pagination-active-bg:var(--nb-primary);--bs-pagination-active-border-color:var(--nb-primary);--bs-pagination-disabled-bg:transparent;--bs-pagination-disabled-color:var(--nb-text-muted)">
     {% if page_obj.has_previous %}
     <li class="page-item">
-      <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}page={{ page_obj.previous_page_number }}">‹ Prev</a>
+      <a class="page-link rounded-3" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page={{ page_obj.previous_page_number }}" style="border-radius:8px!important">
+        <i class="bi bi-chevron-left" style="font-size:.75rem"></i>
+      </a>
     </li>
     {% endif %}
-    <li class="page-item disabled">
-      <span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
-    </li>
+
+    {% for num in page_obj.paginator.page_range %}
+      {% if page_obj.number == num %}
+      <li class="page-item active">
+        <span class="page-link" style="border-radius:8px!important;font-weight:700;min-width:36px;text-align:center">{{ num }}</span>
+      </li>
+      {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+      <li class="page-item">
+        <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page={{ num }}" style="border-radius:8px!important;min-width:36px;text-align:center">{{ num }}</a>
+      </li>
+      {% endif %}
+    {% endfor %}
+
     {% if page_obj.has_next %}
     <li class="page-item">
-      <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}page={{ page_obj.next_page_number }}">Next ›</a>
+      <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page={{ page_obj.next_page_number }}" style="border-radius:8px!important">
+        <i class="bi bi-chevron-right" style="font-size:.75rem"></i>
+      </a>
     </li>
     {% endif %}
   </ul>
+  <p class="text-center text-muted mt-1 mb-0" style="font-size:.75rem">
+    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+  </p>
 </nav>
 {% endif %}
