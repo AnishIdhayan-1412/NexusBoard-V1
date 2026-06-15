@@ -25,8 +25,8 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
     'cloudinary_storage',
+    'django.contrib.staticfiles',
     'cloudinary',
     'django.contrib.humanize',
     # Third party
@@ -132,12 +132,12 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': env('CLOUDINARY_API_SECRET', default=''),
 }
 
-# Use Cloudinary in production, local filesystem in dev
-if env('CLOUDINARY_CLOUD_NAME', default=''):
+# Media — Cloudinary in prod (persistent), local filesystem in dev
+_CLOUDINARY_NAME = env('CLOUDINARY_CLOUD_NAME', default='')
+if _CLOUDINARY_NAME:
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    # django-cloudinary-storage generates full CDN URLs itself — do not set MEDIA_URL
+    MEDIA_URL = f'https://res.cloudinary.com/{_CLOUDINARY_NAME}/'
 else:
-    # Dev fallback — local media
     MEDIA_URL = '/media/'
     MEDIA_ROOT = BASE_DIR / 'media'
 
