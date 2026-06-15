@@ -135,7 +135,7 @@ CLOUDINARY_STORAGE = {
 # Use Cloudinary in production, local filesystem in dev
 if env('CLOUDINARY_CLOUD_NAME', default=''):
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    MEDIA_URL = 'https://res.cloudinary.com/' + env('CLOUDINARY_CLOUD_NAME', default='') + '/image/upload/'
+    # django-cloudinary-storage generates full CDN URLs itself — do not set MEDIA_URL
 else:
     # Dev fallback — local media
     MEDIA_URL = '/media/'
