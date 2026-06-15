@@ -1,26 +1,107 @@
 {% extends 'base.html' %}
 {% block title %}Edit Profile{% endblock %}
+
+{% block extra_css %}
+<style>
+  .edit-card { border-top: 3px solid var(--nb-primary); }
+  .avatar-preview-wrap {
+    position: relative;
+    width: 72px; height: 72px;
+    flex-shrink: 0;
+  }
+  .avatar-preview {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--nb-surface-2);
+    display: block;
+  }
+  .avatar-change-btn {
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--nb-primary);
+    border: 2px solid var(--nb-surface-1);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: .65rem;
+    color: #fff;
+  }
+  /* Hide actual file input, trigger via label */
+  #id_avatar { display: none; }
+  .field-hint { font-size: .75rem; color: var(--nb-text-muted); margin-top: 4px; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="row justify-content-center">
-  <div class="col-md-7">
-    <div class="card p-4">
-      <h5 class="mb-4"><i class="bi bi-gear me-2"></i>Edit Profile</h5>
+  <div class="col-12 col-md-8 col-lg-6">
+    <div class="card edit-card p-3 p-sm-4">
+
+      <!-- Header with live avatar preview -->
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <div class="avatar-preview-wrap">
+          <img src="{{ user.get_avatar_url }}" alt="" class="avatar-preview" id="avatarPreview">
+          <label for="id_avatar" class="avatar-change-btn" title="Change avatar">
+            <i class="bi bi-pencil-fill"></i>
+          </label>
+        </div>
+        <div>
+          <h5 class="mb-0" style="font-weight:700">Edit Profile</h5>
+          <p class="text-muted mb-0" style="font-size:.84rem">{{ user.username }}</p>
+        </div>
+      </div>
+
       <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {% for field in form %}
         <div class="mb-3">
-          <label class="form-label text-muted" style="font-size:.85rem;font-weight:600">{{ field.label|upper }}</label>
+          <label class="form-label">{{ field.label }}</label>
           {{ field }}
-          {% if field.errors %}<div class="text-danger" style="font-size:.82rem">{{ field.errors.0 }}</div>{% endif %}
-          {% if field.help_text %}<div class="text-muted" style="font-size:.8rem">{{ field.help_text }}</div>{% endif %}
+          {% if field.errors %}
+          <div class="text-danger mt-1" style="font-size:.82rem">
+            <i class="bi bi-exclamation-circle me-1"></i>{{ field.errors.0 }}
+          </div>
+          {% endif %}
+          {% if field.help_text and not field.errors %}
+          <div class="field-hint">{{ field.help_text }}</div>
+          {% endif %}
+          {% if field.html_name == 'avatar' %}
+          <div class="field-hint">Click the pencil icon on your avatar above to choose a new image.</div>
+          {% endif %}
         </div>
         {% endfor %}
-        <div class="d-flex gap-2 mt-4">
-          <button type="submit" class="btn btn-primary">Save Changes</button>
-          <a href="{% url 'accounts:profile' user.username %}" class="btn btn-outline-secondary">Cancel</a>
+
+        <div class="d-flex gap-2 mt-4 flex-column flex-sm-row">
+          <button type="submit" class="btn btn-primary flex-sm-fill py-2" style="font-size:.95rem">
+            <i class="bi bi-check-lg me-1"></i>Save Changes
+          </button>
+          <a href="{% url 'accounts:profile' user.username %}"
+             class="btn btn-outline-secondary flex-sm-fill py-2">
+            Cancel
+          </a>
         </div>
       </form>
+
     </div>
   </div>
 </div>
+
+<script>
+/* Live avatar preview when user picks a file */
+var avatarInput = document.getElementById('id_avatar');
+if (avatarInput) {
+  avatarInput.addEventListener('change', function() {
+    if (this.files && this.files[0]) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var preview = document.getElementById('avatarPreview');
+        if (preview) preview.src = e.target.result;
+      };
+      reader.readAsDataURL(this.files[0]);
+    }
+  });
+}
+</script>
 {% endblock %}
