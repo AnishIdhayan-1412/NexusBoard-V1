@@ -135,7 +135,7 @@ CLOUDINARY_STORAGE = {
 # Use Cloudinary in production, local filesystem in dev
 if env('CLOUDINARY_CLOUD_NAME', default=''):
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    MEDIA_URL = '/media/'
+    MEDIA_URL = 'https://res.cloudinary.com/' + env('CLOUDINARY_CLOUD_NAME', default='') + '/image/upload/'
 else:
     # Dev fallback — local media
     MEDIA_URL = '/media/'
@@ -158,7 +158,7 @@ CSP_DEFAULT_SRC = ("'self'",)
 CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "cdn.jsdelivr.net")
 CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", "cdn.jsdelivr.net")
 CSP_FONT_SRC = ("'self'", "cdn.jsdelivr.net")
-CSP_IMG_SRC = ("'self'", "data:", "ui-avatars.com", "res.cloudinary.com")
+CSP_IMG_SRC = ("'self'", "data:", "ui-avatars.com", "res.cloudinary.com", "*.cloudinary.com")
 CSP_CONNECT_SRC = ("'self'",)
 
 # ── Email ─────────────────────────────────────────────────────────────────────
