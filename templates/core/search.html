@@ -1,20 +1,96 @@
 {% extends 'base.html' %}
-{% block title %}Search: {{ query }}{% endblock %}
+{% block title %}Search{% if query %}: {{ query }}{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .search-section-label {
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--nb-text-muted);
+    margin-bottom: .65rem;
+    margin-top: .25rem;
+  }
+  .search-comm-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--nb-surface-1);
+    border: 1px solid var(--nb-border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    text-decoration: none;
+    color: var(--nb-text);
+    transition: border-color .15s, transform .15s;
+  }
+  .search-comm-card:hover {
+    border-color: rgba(37,99,235,.4);
+    transform: translateY(-1px);
+    color: var(--nb-text);
+  }
+  .search-comm-icon {
+    width: 36px; height: 36px;
+    border-radius: 9px;
+    background: var(--nb-primary);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: .9rem; color: #fff; flex-shrink: 0;
+  }
+  .search-user-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--nb-surface-1);
+    border: 1px solid var(--nb-border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    text-decoration: none;
+    color: var(--nb-text);
+    transition: border-color .15s, transform .15s;
+  }
+  .search-user-card:hover {
+    border-color: rgba(37,99,235,.4);
+    transform: translateY(-1px);
+    color: var(--nb-text);
+  }
+  .feed-score { font-size:.9rem; font-weight:700; min-width:28px; text-align:center; }
+  .feed-score.pos  { color: var(--nb-accent-warm); }
+  .feed-score.neg  { color: var(--nb-danger); }
+  .feed-score.zero { color: var(--nb-text-muted); }
+</style>
+{% endblock %}
+
 {% block content %}
-<h4 class="mb-4">
-  {% if query %}Search results for "<span style="color:var(--nb-primary)">{{ query }}</span>"
-  {% else %}Search Canopy{% endif %}
-</h4>
+<!-- Search header -->
+<div class="mb-4">
+  {% if query %}
+  <h4 class="mb-1" style="font-weight:700">
+    Results for "<span style="color:var(--nb-primary-light)">{{ query }}</span>"
+  </h4>
+  <p class="text-muted mb-0" style="font-size:.85rem">
+    {% with total=post_page.paginator.count|add:community_page.paginator.count %}
+    {{ total }} result{{ total|pluralize }} found
+    {% endwith %}
+  </p>
+  {% else %}
+  <h4 class="mb-1" style="font-weight:700">Search NexusBoard</h4>
+  <p class="text-muted mb-0" style="font-size:.875rem">Find posts, communities, and people</p>
+  {% endif %}
+</div>
+
 {% if query %}
+
+  <!-- ── Communities ───────────────────────────── -->
   {% if community_page.object_list %}
-  <h6 class="text-muted mb-2" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.08em">Communities ({{ community_page.paginator.count }})</h6>
+  <p class="search-section-label">🌐 Communities</p>
   <div class="row g-2 mb-4">
     {% for c in community_page %}
-    <div class="col-md-4">
-      <a href="{% url 'communities:detail' c.slug %}" class="text-decoration-none">
-        <div class="card card-hover py-2 px-3">
-          <strong style="color:var(--nb-primary)">c/{{ c.name }}</strong>
-          <span class="text-muted" style="font-size:.8rem">{{ c.member_count }} members</span>
+    <div class="col-12 col-sm-6 col-md-4">
+      <a href="{% url 'communities:detail' c.slug %}" class="search-comm-card">
+        <div class="search-comm-icon">{{ c.name|slice:'0:1'|upper }}</div>
+        <div style="min-width:0">
+          <div style="font-weight:600;font-size:.88rem">c/{{ c.name }}</div>
+          <div class="text-muted" style="font-size:.75rem">{{ c.member_count }} member{{ c.member_count|pluralize }}</div>
         </div>
       </a>
     </div>
@@ -22,34 +98,53 @@
   </div>
   {% endif %}
 
+  <!-- ── Posts ─────────────────────────────────── -->
   {% if post_page.object_list %}
-  <h6 class="text-muted mb-2" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.08em">Posts ({{ post_page.paginator.count }})</h6>
+  <p class="search-section-label">📝 Posts</p>
   {% for post in post_page %}
-  <div class="card mb-2">
-    <div class="card-body py-3">
-      <div class="d-flex align-items-center gap-2 mb-1">
-        <a href="{% url 'communities:detail' post.community.slug %}" class="badge-comm">c/{{ post.community.name }}</a>
-        <span class="text-muted" style="font-size:.78rem">{{ post.created_at|timesince }} ago</span>
+  <div class="card card-hover post-card mb-2"
+       onclick="window.location='{% url 'posts:detail' post.pk %}'">
+    <div class="card-body py-3 px-3">
+      <div class="d-flex gap-3">
+        <div class="d-flex flex-column align-items-center justify-content-center" style="min-width:32px">
+          <span class="feed-score {% if post.score > 0 %}pos{% elif post.score < 0 %}neg{% else %}zero{% endif %}">
+            {{ post.score }}
+          </span>
+        </div>
+        <div class="flex-grow-1" style="min-width:0">
+          <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+            <a href="{% url 'communities:detail' post.community.slug %}" class="badge-comm"
+               onclick="event.stopPropagation()">c/{{ post.community.name }}</a>
+            <span class="post-meta">{{ post.created_at|timesince }} ago</span>
+          </div>
+          <a href="{% url 'posts:detail' post.pk %}" class="post-title-link d-block"
+             onclick="event.stopPropagation()">{{ post.title }}</a>
+          {% if post.body %}
+          <p class="text-muted mb-0 mt-1" style="font-size:.84rem;line-height:1.5">
+            {{ post.body|truncatechars:150 }}
+          </p>
+          {% endif %}
+        </div>
       </div>
-      <a href="{% url 'posts:detail' post.pk %}" class="post-title-link">{{ post.title }}</a>
-      {% if post.body %}<p class="text-muted mb-0 mt-1" style="font-size:.85rem">{{ post.body|truncatechars:150 }}</p>{% endif %}
     </div>
   </div>
   {% endfor %}
   {% include 'includes/pagination.html' with page_obj=post_page %}
   {% endif %}
 
+  <!-- ── Users ─────────────────────────────────── -->
   {% if user_page.object_list %}
-  <h6 class="text-muted mb-2 mt-3" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.08em">Users ({{ user_page.paginator.count }})</h6>
+  <p class="search-section-label mt-3">👤 People</p>
   <div class="row g-2 mb-4">
     {% for u in user_page %}
-    <div class="col-md-4">
-      <a href="{% url 'accounts:profile' u.username %}" class="text-decoration-none">
-        <div class="card card-hover py-2 px-3 d-flex flex-row align-items-center gap-2">
-          <img src="{{ u.get_avatar_url }}" class="user-avatar" alt="">
-          <div>
-            <strong style="font-size:.9rem">{{ u.username }}</strong>
-            <div class="text-muted" style="font-size:.75rem">{{ u.reputation }} reputation</div>
+    <div class="col-12 col-sm-6 col-md-4">
+      <a href="{% url 'accounts:profile' u.username %}" class="search-user-card">
+        <img src="{{ u.get_avatar_url }}" alt=""
+             style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0">
+        <div style="min-width:0">
+          <div style="font-weight:600;font-size:.88rem">{{ u.username }}</div>
+          <div class="text-muted" style="font-size:.75rem">
+            <i class="bi bi-star-fill me-1" style="color:var(--nb-accent-warm)"></i>{{ u.reputation }} rep
           </div>
         </div>
       </a>
@@ -58,18 +153,40 @@
   </div>
   {% endif %}
 
+  <!-- ── No results ────────────────────────────── -->
   {% if not post_page.object_list and not community_page.object_list and not user_page.object_list %}
-  <div class="card"><div class="card-body text-center py-5">
-    <div style="font-size:3rem;opacity:.3">🔍</div>
-    <h5 class="text-muted mt-2">No results found</h5>
-    <p class="text-muted" style="font-size:.9rem">Try different keywords</p>
-  </div></div>
+  <div class="card">
+    <div class="card-body text-center py-5">
+      <svg width="56" height="56" viewBox="0 0 56 56" fill="none"
+           style="opacity:.2;margin-bottom:.75rem" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="24" cy="24" r="16" stroke="currentColor" stroke-width="2.5"/>
+        <line x1="35.5" y1="35.5" x2="50" y2="50" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <h5 class="text-muted">No results for "{{ query }}"</h5>
+      <p class="text-muted mb-3" style="font-size:.875rem">Try different keywords or browse communities instead.</p>
+      <a href="{% url 'communities:list' %}" class="btn btn-outline-primary btn-sm px-4">
+        Browse Communities
+      </a>
+    </div>
+  </div>
   {% endif %}
+
 {% else %}
-<div class="card"><div class="card-body text-center py-5">
-  <div style="font-size:3rem;opacity:.3">🔍</div>
-  <h5 class="text-muted mt-2">What are you looking for?</h5>
-  <p class="text-muted" style="font-size:.9rem">Search for posts, communities, and more</p>
-</div></div>
+
+  <!-- ── Empty search state ────────────────────── -->
+  <div class="card">
+    <div class="card-body text-center py-5">
+      <svg width="56" height="56" viewBox="0 0 56 56" fill="none"
+           style="opacity:.2;margin-bottom:.75rem" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="24" cy="24" r="16" stroke="currentColor" stroke-width="2.5"/>
+        <line x1="35.5" y1="35.5" x2="50" y2="50" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <h5 class="text-muted">What are you looking for?</h5>
+      <p class="text-muted mb-0" style="font-size:.875rem">
+        Search for posts, communities, and people above.
+      </p>
+    </div>
+  </div>
+
 {% endif %}
 {% endblock %}
