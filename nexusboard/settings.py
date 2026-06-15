@@ -126,17 +126,26 @@ if _STATIC_DIR.exists():
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # ── Cloudinary — persistent media storage (survives Railway redeploys) ────────
+_CLOUDINARY_CLOUD = env('CLOUDINARY_CLOUD_NAME', default='')
+_CLOUDINARY_KEY   = env('CLOUDINARY_API_KEY', default='')
+_CLOUDINARY_SEC   = env('CLOUDINARY_API_SECRET', default='')
+
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': env('CLOUDINARY_CLOUD_NAME', default=''),
-    'API_KEY': env('CLOUDINARY_API_KEY', default=''),
-    'API_SECRET': env('CLOUDINARY_API_SECRET', default=''),
+    'CLOUD_NAME': _CLOUDINARY_CLOUD,
+    'API_KEY':    _CLOUDINARY_KEY,
+    'API_SECRET': _CLOUDINARY_SEC,
 }
 
-# Media — Cloudinary in prod (persistent), local filesystem in dev
-_CLOUDINARY_NAME = env('CLOUDINARY_CLOUD_NAME', default='')
-if _CLOUDINARY_NAME:
+if _CLOUDINARY_CLOUD and _CLOUDINARY_KEY and _CLOUDINARY_SEC:
+    import cloudinary
+    cloudinary.config(
+        cloud_name=_CLOUDINARY_CLOUD,
+        api_key=_CLOUDINARY_KEY,
+        api_secret=_CLOUDINARY_SEC,
+        secure=True
+    )
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    MEDIA_URL = f'https://res.cloudinary.com/{_CLOUDINARY_NAME}/'
+    MEDIA_URL = f'https://res.cloudinary.com/{_CLOUDINARY_CLOUD}/'
 else:
     MEDIA_URL = '/media/'
     MEDIA_ROOT = BASE_DIR / 'media'
