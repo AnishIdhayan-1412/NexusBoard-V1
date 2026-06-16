@@ -22,12 +22,9 @@ def community_list_view(request):
 
 def community_detail_view(request, slug):
     community = get_object_or_404(Community, slug=slug)
-    posts_qs = community.posts.select_related('author').order_by('-is_pinned', '-created_at')
-    paginator = Paginator(posts_qs, PAGE_SIZE)
-    page = paginator.get_page(request.GET.get('page'))
-
     is_member = False
     user_role = None
+    membership = None
     if request.user.is_authenticated:
         membership = Membership.objects.filter(
             user=request.user, community=community, is_active=True
@@ -36,11 +33,26 @@ def community_detail_view(request, slug):
             is_member = True
             user_role = membership.role
 
+    # Private community gate — non-members see no posts
+    if community.is_private and not is_member and not request.user.is_staff:
+        return render(request, 'communities/detail.html', {
+            'community': community,
+            'page_obj': None,
+            'is_member': False,
+            'user_role': None,
+            'is_private_locked': True,
+        })
+
+    posts_qs = community.posts.select_related('author').order_by('-is_pinned', '-created_at')
+    paginator = Paginator(posts_qs, PAGE_SIZE)
+    page = paginator.get_page(request.GET.get('page'))
+
     return render(request, 'communities/detail.html', {
         'community': community,
         'page_obj': page,
         'is_member': is_member,
         'user_role': user_role,
+        'is_private_locked': False,
     })
 
 
@@ -59,7 +71,7 @@ def community_create_view(request):
                 )
                 community.recalc_member_count()
             logger.info("Community created: %s by %s", community.name, request.user.username)
-            messages.success(request, f"Community c/{community.name} created!")
+            messages.success(request, f"Community {community.name} created!")
             return redirect('communities:detail', slug=community.slug)
     else:
         form = CommunityCreateForm()
@@ -82,7 +94,7 @@ def join_community_view(request, slug):
         else:
             action = 'joined'
         community.recalc_member_count()
-    messages.success(request, f"You have {action} c/{community.name}")
+    messages.success(request, f"You have {action} {community.name}")
     return redirect('communities:detail', slug=community.slug)
 
 
