@@ -25,7 +25,6 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'cloudinary_storage',
     'django.contrib.staticfiles',
     'cloudinary',
     'django.contrib.humanize',
@@ -130,12 +129,6 @@ _CLOUDINARY_CLOUD = env('CLOUDINARY_CLOUD_NAME', default='')
 _CLOUDINARY_KEY   = env('CLOUDINARY_API_KEY', default='')
 _CLOUDINARY_SEC   = env('CLOUDINARY_API_SECRET', default='')
 
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': _CLOUDINARY_CLOUD,
-    'API_KEY':    _CLOUDINARY_KEY,
-    'API_SECRET': _CLOUDINARY_SEC,
-}
-
 # Always define STORAGES — required by Django 5+
 # Cloudinary backend activates when credentials present
 STORAGES = {
@@ -143,7 +136,7 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
     "default": {
-        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"
+        "BACKEND": "core.storage.CloudinaryMediaStorage"
         if (_CLOUDINARY_CLOUD and _CLOUDINARY_KEY and _CLOUDINARY_SEC)
         else "django.core.files.storage.FileSystemStorage",
     },
