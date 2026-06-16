@@ -123,7 +123,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 _STATIC_DIR = BASE_DIR / 'static'
 if _STATIC_DIR.exists():
     STATICFILES_DIRS = [_STATIC_DIR]
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 
 # ── Cloudinary — persistent media storage (survives Railway redeploys) ────────
 _CLOUDINARY_CLOUD = env('CLOUDINARY_CLOUD_NAME', default='')
@@ -144,7 +144,15 @@ if _CLOUDINARY_CLOUD and _CLOUDINARY_KEY and _CLOUDINARY_SEC:
         api_secret=_CLOUDINARY_SEC,
         secure=True
     )
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    # Django 4.2+ uses STORAGES dict (DEFAULT_FILE_STORAGE removed in Django 5+)
+    STORAGES = {
+        "default": {
+            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
     MEDIA_URL = f'https://res.cloudinary.com/{_CLOUDINARY_CLOUD}/'
 else:
     MEDIA_URL = '/media/'
