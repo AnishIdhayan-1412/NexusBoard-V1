@@ -136,23 +136,27 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': _CLOUDINARY_SEC,
 }
 
+# Always define STORAGES — required by Django 5+
+# Cloudinary backend activates when credentials present
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"
+        if (_CLOUDINARY_CLOUD and _CLOUDINARY_KEY and _CLOUDINARY_SEC)
+        else "django.core.files.storage.FileSystemStorage",
+    },
+}
+
 if _CLOUDINARY_CLOUD and _CLOUDINARY_KEY and _CLOUDINARY_SEC:
     import cloudinary
     cloudinary.config(
         cloud_name=_CLOUDINARY_CLOUD,
         api_key=_CLOUDINARY_KEY,
         api_secret=_CLOUDINARY_SEC,
-        secure=True
+        secure=True,
     )
-    # Django 4.2+ uses STORAGES dict (DEFAULT_FILE_STORAGE removed in Django 5+)
-    STORAGES = {
-        "default": {
-            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-        },
-        "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-        },
-    }
     MEDIA_URL = f'https://res.cloudinary.com/{_CLOUDINARY_CLOUD}/'
 else:
     MEDIA_URL = '/media/'
