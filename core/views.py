@@ -31,6 +31,16 @@ def home_view(request):
             'author', 'community'
         ).order_by('-score', '-created_at')
 
+    # ── Sort tabs: ?sort=hot|new|top ──────────────────────────────────────
+    # hot = score desc (default), new = created_at desc, top = score desc all-time
+    sort = request.GET.get('sort', 'hot')
+    if sort == 'new':
+        qs = qs.order_by('-created_at')
+    elif sort == 'top':
+        qs = qs.order_by('-score', '-created_at')
+    else:  # 'hot' — score weighted by recency (pinned first)
+        qs = qs.order_by('-is_pinned', '-score', '-created_at')
+
     paginator = Paginator(qs, PAGE_SIZE)
     page = paginator.get_page(request.GET.get('page'))
 
@@ -39,11 +49,18 @@ def home_view(request):
     return render(request, 'core/home.html', {
         'page_obj': page,
         'trending_communities': trending,
+        'current_sort': sort,
     })
 
 
 def about_view(request):
-    return render(request, 'core/about.html')
+    from posts.models import Post
+    from accounts.models import User
+    return render(request, 'core/about.html', {
+        'total_communities': Community.objects.count(),
+        'total_posts': Post.objects.count(),
+        'total_users': User.objects.filter(is_active=True).count(),
+    })
 
 
 def search_view(request):

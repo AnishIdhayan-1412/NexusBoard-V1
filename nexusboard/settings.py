@@ -151,6 +151,10 @@ if _CLOUDINARY_CLOUD and _CLOUDINARY_KEY and _CLOUDINARY_SEC:
         secure=True,
     )
     MEDIA_URL = f'https://res.cloudinary.com/{_CLOUDINARY_CLOUD}/'
+    # MEDIA_ROOT must be defined even when Cloudinary is active.
+    # urls.py calls static(MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    # which raises AttributeError on startup if MEDIA_ROOT is missing.
+    MEDIA_ROOT = BASE_DIR / 'media'
 else:
     MEDIA_URL = '/media/'
     MEDIA_ROOT = BASE_DIR / 'media'
@@ -169,9 +173,9 @@ CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
 # ── Content Security Policy ───────────────────────────────────────────────────
 CSP_DEFAULT_SRC = ("'self'",)
-CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "cdn.jsdelivr.net")
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "fonts.googleapis.com")  # Inter font
 CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", "cdn.jsdelivr.net")
-CSP_FONT_SRC = ("'self'", "cdn.jsdelivr.net")
+CSP_FONT_SRC = ("'self'", "cdn.jsdelivr.net", "fonts.gstatic.com")  # Inter font files
 CSP_IMG_SRC = ("'self'", "data:", "ui-avatars.com", "res.cloudinary.com", "*.cloudinary.com")
 CSP_CONNECT_SRC = ("'self'",)
 

@@ -68,9 +68,9 @@
 
     <!-- Feed sort tabs -->
     <div class="sort-tabs">
-      <a href="?sort=hot" class="sort-tab {% if request.GET.sort == 'hot' or not request.GET.sort %}active{% endif %}">🔥 Hot</a>
-      <a href="?sort=new" class="sort-tab {% if request.GET.sort == 'new' %}active{% endif %}">✨ New</a>
-      <a href="?sort=top" class="sort-tab {% if request.GET.sort == 'top' %}active{% endif %}">⬆️ Top</a>
+      <a href="?sort=hot" class="sort-tab {% if current_sort == 'hot' or not current_sort %}active{% endif %}">🔥 Hot</a>
+      <a href="?sort=new" class="sort-tab {% if current_sort == 'new' %}active{% endif %}">✨ New</a>
+      <a href="?sort=top" class="sort-tab {% if current_sort == 'top' %}active{% endif %}">⬆️ Top</a>
     </div>
 
     <!-- Post feed -->

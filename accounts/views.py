@@ -37,8 +37,13 @@ def login_view(request):
             user = form.get_user()
             login(request, user)
             logger.info(f"User logged in: {user.username}")
-            next_url = request.GET.get('next', 'core:home')
-            return redirect(next_url)
+            # Security: validate next is a safe local URL to prevent open redirect.
+            # An attacker could craft ?next=https://evil.com to redirect after login.
+            from django.utils.http import url_has_allowed_host_and_scheme
+            next_url = request.GET.get('next', '')
+            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+                return redirect(next_url)
+            return redirect('core:home')
         else:
             messages.error(request, 'Invalid username or password.')
     else:
@@ -85,6 +90,7 @@ def edit_profile_view(request):
 
 
 @login_required
+@require_POST
 def follow_toggle_view(request, username):
     target_user = get_object_or_404(User, username=username)
     if target_user == request.user:

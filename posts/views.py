@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.core.paginator import Paginator
 from django.views.decorators.http import require_POST
-from django.db import transaction
+from django.db import models, transaction
 from .models import Post, Comment, Vote, CommentVote
 from .forms import PostCreateForm, CommentForm
 from communities.models import Community, Membership
@@ -90,9 +90,11 @@ def add_comment_view(request, post_pk):
             if parent_id:
                 comment.parent = get_object_or_404(Comment, pk=parent_id)
             comment.save()
-            # Update cached comment count
+            # Atomically increment cached comment_count.
+            # Using F() avoids a race condition where .count() could read
+            # stale data when two comments are saved concurrently.
             Post.objects.filter(pk=post.pk).update(
-                comment_count=post.comments.count()
+                comment_count=models.F('comment_count') + 1
             )
             # Reputation: +1 to post author for receiving a comment
             if comment.author != post.author:

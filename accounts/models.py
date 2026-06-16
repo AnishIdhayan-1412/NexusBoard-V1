@@ -34,7 +34,7 @@ class User(AbstractUser):
     def get_avatar_url(self):
         if self.avatar:
             return self.avatar.url
-        return f"https://ui-avatars.com/api/?name={self.username}&background=6366f1&color=fff&size=128"
+        return f"https://ui-avatars.com/api/?name={self.username}&background=2563eb&color=fff&size=128"
 
     @property
     def follower_count(self):
