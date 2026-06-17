@@ -121,18 +121,32 @@
             <span class="text-muted" style="font-size:.62rem">pts</span>
           </div>
           <div class="flex-grow-1">
-            <div class="post-meta mb-1">
-              Posted by <a href="{% url 'accounts:profile' post.author.username %}" onclick="event.stopPropagation()">{{ post.author.username }}</a>
-              · {{ post.created_at|timesince }} ago
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+              <span class="post-meta">
+                <a href="{% url 'accounts:profile' post.author.username %}" onclick="event.stopPropagation()">{{ post.author.username }}</a>
+                · {{ post.created_at|timesince }} ago
+              </span>
+              {% if post.post_type == 'link' %}<span style="font-size:.68rem;font-weight:600;padding:1px 7px;border-radius:20px;background:rgba(14,165,233,0.12);color:var(--nb-accent)"><i class="bi bi-link-45deg"></i> Link</span>{% endif %}
+              {% if post.post_type == 'image' %}<span style="font-size:.68rem;font-weight:600;padding:1px 7px;border-radius:20px;background:rgba(16,185,129,0.12);color:var(--nb-success)"><i class="bi bi-image"></i> Image</span>{% endif %}
+              {% if post.is_pinned %}<span style="font-size:.68rem;color:var(--nb-accent-warm)"><i class="bi bi-pin-fill"></i> Pinned</span>{% endif %}
             </div>
-            <a href="{% url 'posts:detail' post.pk %}" class="post-title-link" onclick="event.stopPropagation()">{{ post.title }}</a>
-            {% if post.body %}
-            <p class="text-muted mb-1 mt-1" style="font-size:.86rem;line-height:1.5">{{ post.body|truncatechars:180 }}</p>
-            {% endif %}
-            <div class="post-meta mt-1">
+            <div class="d-flex gap-2 align-items-start">
+              <div class="flex-grow-1">
+                <a href="{% url 'posts:detail' post.pk %}" class="post-title-link d-block" onclick="event.stopPropagation()">{{ post.title }}</a>
+                {% if post.body %}
+                <p class="text-muted mb-1 mt-1" style="font-size:.85rem;line-height:1.5">{{ post.body|truncatechars:160 }}</p>
+                {% endif %}
+              </div>
+              {% if post.image %}
+              <img src="{{ post.image.url }}" alt="" onclick="event.stopPropagation()"
+                   style="width:60px;height:60px;border-radius:8px;object-fit:cover;flex-shrink:0;border:1px solid var(--nb-border)" class="d-none d-sm-block">
+              {% endif %}
+            </div>
+            <div class="post-meta mt-1 d-flex gap-3">
               <a href="{% url 'posts:detail' post.pk %}" onclick="event.stopPropagation()">
-                <i class="bi bi-chat me-1"></i>{{ post.comment_count }} comments
+                <i class="bi bi-chat me-1"></i>{{ post.comment_count }} comment{{ post.comment_count|pluralize }}
               </a>
+              {% if post.is_locked %}<span style="color:var(--nb-danger);font-size:.75rem"><i class="bi bi-lock-fill"></i> Locked</span>{% endif %}
             </div>
           </div>
         </div>
