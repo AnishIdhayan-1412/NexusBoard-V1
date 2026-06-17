@@ -1,4 +1,10 @@
 {% extends 'base.html' %}
+{% block meta_description %}{{ post.title }} — {{ post.body|truncatechars:150 }} | Canopy{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block og_title %}{{ post.title }}{% endblock %}
+{% block og_description %}{{ post.body|truncatechars:200 }}{% endblock %}
+{% block twitter_title %}{{ post.title }} – Canopy{% endblock %}
+{% block twitter_description %}{{ post.body|truncatechars:150 }}{% endblock %}
 {% block title %}{{ post.title }}{% endblock %}
 
 {% block extra_css %}
