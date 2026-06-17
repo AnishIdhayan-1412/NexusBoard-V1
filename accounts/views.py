@@ -63,7 +63,9 @@ def logout_view(request):
 
 def profile_view(request, username):
     profile_user = get_object_or_404(User, username=username)
-    posts = profile_user.posts.select_related('community').order_by('-created_at')[:20]
+    from django.core.paginator import Paginator
+    posts_qs = profile_user.posts.select_related('community').order_by('-created_at')
+    posts_page = Paginator(posts_qs, 15).get_page(request.GET.get('page'))
     is_following = False
     if request.user.is_authenticated:
         is_following = Follow.objects.filter(follower=request.user, following=profile_user).exists()
@@ -76,7 +78,7 @@ def profile_view(request, username):
     )
     context = {
         'profile_user': profile_user,
-        'posts': posts,
+        'posts': posts_page,
         'is_following': is_following,
         'post_count': counts['post_count'],
         'comment_count': counts['comment_count'],

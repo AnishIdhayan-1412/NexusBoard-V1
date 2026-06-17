@@ -4,7 +4,7 @@ from django.db.models import F
 from django.urls import reverse
 from django.conf import settings
 
-logger = logging.getLogger('nexusboard')
+logger = logging.getLogger('canopy')
 
 
 class Post(models.Model):

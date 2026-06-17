@@ -60,7 +60,7 @@ class Community(models.Model):
         self.post_count = count
 
     def __str__(self):
-        return f"c/{self.name}"
+        return self.name
 
 
 class Membership(models.Model):
