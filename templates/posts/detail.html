@@ -98,16 +98,15 @@
                     title="Upvote">
               <i class="bi bi-arrow-up-circle-fill"></i>
             </button>
+            {% endif %}
             <span id="vote-score-desk"
                   class="{% if post.score > 0 %}positive{% elif post.score < 0 %}negative{% else %}zero{% endif %}">{{ post.score }}</span>
+            {% if user.is_authenticated %}
             <button class="vote-btn {% if user_vote == -1 %}down-active{% endif %}"
                     onclick="vote({{ post.pk }}, -1)" id="down-btn"
                     title="Downvote">
               <i class="bi bi-arrow-down-circle-fill"></i>
             </button>
-            {% else %}
-            <span id="vote-score-desk"
-                  class="{% if post.score > 0 %}positive{% elif post.score < 0 %}negative{% else %}zero{% endif %}">{{ post.score }}</span>
             {% endif %}
           </div>
 
@@ -146,15 +145,14 @@
                       onclick="vote({{ post.pk }}, 1)" id="up-btn-mob" title="Upvote">
                 <i class="bi bi-arrow-up-circle-fill"></i>
               </button>
+              {% endif %}
               <span id="vote-score-mob"
                     class="{% if post.score > 0 %}positive{% elif post.score < 0 %}negative{% else %}zero{% endif %}">{{ post.score }}</span>
+              {% if user.is_authenticated %}
               <button class="vote-btn {% if user_vote == -1 %}down-active{% endif %}"
                       onclick="vote({{ post.pk }}, -1)" id="down-btn-mob" title="Downvote">
                 <i class="bi bi-arrow-down-circle-fill"></i>
               </button>
-              {% else %}
-              <span id="vote-score-mob"
-                    class="{% if post.score > 0 %}positive{% elif post.score < 0 %}negative{% else %}zero{% endif %}">{{ post.score }}</span>
               {% endif %}
               <span class="post-meta ms-2"><i class="bi bi-chat me-1"></i>{{ post.comment_count }} comments</span>
             </div>
@@ -222,13 +220,30 @@
 
     {% for comment in comments %}
     <div class="comment-card" id="comment-{{ comment.pk }}">
-      <!-- Author chip -->
-      <div class="d-flex align-items-center gap-2 mb-2">
-        <a href="{% url 'accounts:profile' comment.author.username %}" class="author-chip">
-          <img src="{{ comment.author.get_avatar_url }}" alt="">
-          <span>{{ comment.author.username }}</span>
-        </a>
-        <span class="text-muted" style="font-size:.75rem">{{ comment.created_at|timesince }} ago</span>
+      <!-- Author chip + score -->
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <div class="d-flex align-items-center gap-2">
+          <a href="{% url 'accounts:profile' comment.author.username %}" class="author-chip">
+            <img src="{{ comment.author.get_avatar_url }}" alt="">
+            <span>{{ comment.author.username }}</span>
+          </a>
+          <span class="text-muted" style="font-size:.75rem">{{ comment.created_at|timesince }} ago</span>
+        </div>
+        <div class="d-flex align-items-center gap-1" id="comment-score-wrap-{{ comment.pk }}">
+          {% if user.is_authenticated %}
+          <button class="vote-btn" style="font-size:.9rem" title="Upvote"
+                  onclick="voteComment({{ comment.pk }}, 1)">
+            <i class="bi bi-arrow-up-circle"></i>
+          </button>
+          {% endif %}
+          <span id="comment-score-{{ comment.pk }}" style="font-size:.8rem;font-weight:700;min-width:20px;text-align:center;color:var(--nb-text-muted)">{{ comment.score }}</span>
+          {% if user.is_authenticated %}
+          <button class="vote-btn" style="font-size:.9rem" title="Downvote"
+                  onclick="voteComment({{ comment.pk }}, -1)">
+            <i class="bi bi-arrow-down-circle"></i>
+          </button>
+          {% endif %}
+        </div>
       </div>
 
       {% if comment.is_deleted %}
@@ -380,6 +395,24 @@ function vote(postId, value) {
       updateScoreDisplay(data.score);
       updateButtonStates(data.user_vote);
       currentVote = data.user_vote;
+    });
+}
+{% endif %}
+
+/* ── Comment vote function ── */
+{% if user.is_authenticated %}
+function voteComment(commentId, value) {
+  var form = new FormData();
+  form.append('value', value);
+  form.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  fetch('/posts/comment/' + commentId + '/vote/', {method:'POST', body: form})
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var el = document.getElementById('comment-score-' + commentId);
+      if (el) {
+        el.textContent = data.score;
+        el.style.color = data.score > 0 ? 'var(--nb-accent-warm)' : data.score < 0 ? 'var(--nb-danger)' : 'var(--nb-text-muted)';
+      }
     });
 }
 {% endif %}

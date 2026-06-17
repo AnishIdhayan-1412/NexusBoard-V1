@@ -67,12 +67,19 @@ def profile_view(request, username):
     is_following = False
     if request.user.is_authenticated:
         is_following = Follow.objects.filter(follower=request.user, following=profile_user).exists()
+    # Use annotated counts from the User model to avoid 2 extra DB queries.
+    # posts queryset is already sliced so len() is safe; comments count once.
+    from django.db.models import Count
+    counts = User.objects.filter(pk=profile_user.pk).aggregate(
+        post_count=Count('posts', distinct=True),
+        comment_count=Count('comments', distinct=True),
+    )
     context = {
         'profile_user': profile_user,
         'posts': posts,
         'is_following': is_following,
-        'post_count': profile_user.posts.count(),
-        'comment_count': profile_user.comments.count(),
+        'post_count': counts['post_count'],
+        'comment_count': counts['comment_count'],
     }
     return render(request, 'accounts/profile.html', context)
 
