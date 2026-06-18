@@ -195,8 +195,8 @@
           <div class="comm-card-name">{{ community.name }}</div>
           <p class="comm-card-desc mb-0">{{ community.description|truncatechars:85 }}</p>
           <div class="comm-card-footer">
-            <span class="comm-badge-stat"><strong>{{ community.member_count }}</strong> members</span>
-            <span class="comm-badge-stat"><strong>{{ community.post_count }}</strong> posts</span>
+            <span class="comm-badge-stat"><strong>{{ community.member_count }}</strong> member{{ community.member_count|pluralize }}</span>
+            <span class="comm-badge-stat"><strong>{{ community.post_count }}</strong> post{{ community.post_count|pluralize }}</span>
             {% if user.is_authenticated %}
             <span class="badge" style="background:rgba(37,99,235,0.15);color:var(--nb-primary-light);font-size:.68rem;border-radius:20px">Join</span>
             {% endif %}

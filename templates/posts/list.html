@@ -47,7 +47,7 @@
             {% endif %}
             <div class="post-meta mt-1">
               <a href="{% url 'posts:detail' post.pk %}" onclick="event.stopPropagation()">
-                <i class="bi bi-chat me-1"></i>{{ post.comment_count }} comments
+                <i class="bi bi-chat me-1"></i>{{ post.comment_count }} comment{{ post.comment_count|pluralize }}
               </a>
             </div>
           </div>

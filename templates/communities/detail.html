@@ -59,11 +59,11 @@
             <div class="comm-stat-pills">
               <div class="comm-stat-pill">
                 <span class="val">{{ community.member_count }}</span>
-                <span class="lbl">Members</span>
+                <span class="lbl">Member{{ community.member_count|pluralize }}</span>
               </div>
               <div class="comm-stat-pill">
                 <span class="val">{{ community.post_count }}</span>
-                <span class="lbl">Posts</span>
+                <span class="lbl">Post{{ community.post_count|pluralize }}</span>
               </div>
               <div class="comm-stat-pill" style="flex:2;text-align:left">
                 <span class="lbl">Created</span>
