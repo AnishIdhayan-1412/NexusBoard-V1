@@ -16,10 +16,17 @@ PAGE_SIZE = 20
 
 
 def post_list_view(request):
-    qs = Post.objects.select_related('author', 'community').order_by('-created_at')
+    sort = request.GET.get('sort', 'new')
+    if sort == 'top':
+        order = ['-score', '-created_at']
+    elif sort == 'hot':
+        order = ['-is_pinned', '-score', '-created_at']
+    else:
+        order = ['-created_at']
+    qs = Post.objects.select_related('author', 'community').order_by(*order)
     paginator = Paginator(qs, PAGE_SIZE)
     page = paginator.get_page(request.GET.get('page'))
-    return render(request, 'posts/list.html', {'page_obj': page})
+    return render(request, 'posts/list.html', {'page_obj': page, 'current_sort': sort})
 
 
 def post_detail_view(request, pk):
@@ -69,7 +76,7 @@ def post_create_view(request):
         form = PostCreateForm(user=request.user, initial=initial)
     return render(request, 'posts/create.html', {
         'form': form,
-        'communities': Community.objects.all(),
+        'communities': Community.objects.order_by('name')[:200],
     })
 
 

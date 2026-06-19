@@ -14,32 +14,27 @@ PAGE_SIZE = 20
 
 
 def home_view(request):
-    if request.user.is_authenticated:
-        joined_ids = request.user.joined_communities.filter(
-            membership__is_active=True
-        ).values_list('id', flat=True)
-        if joined_ids:
-            qs = Post.objects.filter(
-                community_id__in=joined_ids
-            ).select_related('author', 'community').order_by('-is_pinned', '-created_at')
-        else:
-            qs = Post.objects.select_related(
-                'author', 'community'
-            ).order_by('-score', '-created_at')
-    else:
-        qs = Post.objects.select_related(
-            'author', 'community'
-        ).order_by('-score', '-created_at')
-
     # ── Sort tabs: ?sort=hot|new|top ──────────────────────────────────────
-    # hot = score desc (default), new = created_at desc, top = score desc all-time
     sort = request.GET.get('sort', 'hot')
     if sort == 'new':
-        qs = qs.order_by('-created_at')
+        order = ['-created_at']
     elif sort == 'top':
-        qs = qs.order_by('-score', '-created_at')
-    else:  # 'hot' — score weighted by recency (pinned first)
-        qs = qs.order_by('-is_pinned', '-score', '-created_at')
+        order = ['-score', '-created_at']
+    else:  # hot
+        order = ['-is_pinned', '-score', '-created_at']
+
+    base_qs = Post.objects.select_related('author', 'community')
+
+    if request.user.is_authenticated:
+        joined_ids = list(request.user.joined_communities.filter(
+            membership__is_active=True
+        ).values_list('id', flat=True))
+        if joined_ids:
+            qs = base_qs.filter(community_id__in=joined_ids).order_by(*order)
+        else:
+            qs = base_qs.order_by(*order)
+    else:
+        qs = base_qs.order_by(*order)
 
     paginator = Paginator(qs, PAGE_SIZE)
     page = paginator.get_page(request.GET.get('page'))
