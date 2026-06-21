@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}About NexusBoard{% endblock %}
+{% block title %}About Canopy{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -20,7 +20,7 @@
     transition: border-color .2s, transform .2s;
   }
   .feature-card:hover {
-    border-color: rgba(37,99,235,.35);
+    border-color: rgba(92,138,82,.35);
     transform: translateY(-2px);
   }
   .feature-icon {
@@ -47,10 +47,11 @@
     <div class="card mb-4" style="border-top:3px solid var(--nb-primary)">
       <div class="about-hero">
         <svg class="about-hex" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M36 4L67.2 21.5V56.5L36 74L4.8 56.5V21.5L36 4Z" fill="#2563eb"/>
-          <path d="M22 36h28M36 22v28" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="36" cy="36" r="31" stroke="#5c8a52" stroke-width="3.5"/>
+          <circle cx="36" cy="36" r="20" stroke="#c1693f" stroke-width="3.5"/>
+          <circle cx="36" cy="36" r="8" fill="#d4a23a"/>
         </svg>
-        <h2 class="mb-2" style="font-weight:800">NexusBoard</h2>
+        <h2 class="mb-2" style="font-weight:600">Canopy</h2>
         <p class="text-muted mb-0" style="font-size:1.05rem;max-width:480px;margin:0 auto;line-height:1.65">
           An open community platform where ideas connect. Build communities around what you care about — share knowledge, start conversations, and find your people.
         </p>
@@ -71,7 +72,7 @@
     <div class="row g-3 mb-4">
       <div class="col-md-4">
         <div class="feature-card">
-          <div class="feature-icon" style="background:rgba(37,99,235,.15)">🏘️</div>
+          <div class="feature-icon" style="background:rgba(92,138,82,.15)">🏘️</div>
           <h6 style="font-weight:700">Communities</h6>
           <p class="text-muted mb-0" style="font-size:.85rem;line-height:1.6">
             Create or join communities around any topic — technology, science, hobbies, local news, and more.
@@ -80,7 +81,7 @@
       </div>
       <div class="col-md-4">
         <div class="feature-card">
-          <div class="feature-icon" style="background:rgba(14,165,233,.15)">💬</div>
+          <div class="feature-icon" style="background:rgba(193,105,63,.15)">💬</div>
           <h6 style="font-weight:700">Discussions</h6>
           <p class="text-muted mb-0" style="font-size:.85rem;line-height:1.6">
             Share posts, write comments, reply to threads. Nested conversations keep discussions organised.
@@ -89,7 +90,7 @@
       </div>
       <div class="col-md-4">
         <div class="feature-card">
-          <div class="feature-icon" style="background:rgba(245,158,11,.15)">⬆️</div>
+          <div class="feature-icon" style="background:rgba(212,162,58,.15)">⬆️</div>
           <h6 style="font-weight:700">Voting</h6>
           <p class="text-muted mb-0" style="font-size:.85rem;line-height:1.6">
             Upvote content that matters. The best posts rise to the top — driven by the community, not algorithms.
@@ -98,7 +99,7 @@
       </div>
       <div class="col-md-4">
         <div class="feature-card">
-          <div class="feature-icon" style="background:rgba(16,185,129,.15)">🔒</div>
+          <div class="feature-icon" style="background:rgba(111,174,90,.15)">🔒</div>
           <h6 style="font-weight:700">Privacy First</h6>
           <p class="text-muted mb-0" style="font-size:.85rem;line-height:1.6">
             No ads. No tracking. No data selling. Your account, your content.
@@ -107,7 +108,7 @@
       </div>
       <div class="col-md-4">
         <div class="feature-card">
-          <div class="feature-icon" style="background:rgba(124,58,237,.15)">📱</div>
+          <div class="feature-icon" style="background:rgba(168,120,74,.15)">📱</div>
           <h6 style="font-weight:700">Mobile Ready</h6>
           <p class="text-muted mb-0" style="font-size:.85rem;line-height:1.6">
             Full bottom navigation, thumb-friendly layout. Feels native on any device.
@@ -116,7 +117,7 @@
       </div>
       <div class="col-md-4">
         <div class="feature-card">
-          <div class="feature-icon" style="background:rgba(239,68,68,.15)">⚡</div>
+          <div class="feature-icon" style="background:rgba(193,84,63,.15)">⚡</div>
           <h6 style="font-weight:700">Open Source</h6>
           <p class="text-muted mb-0" style="font-size:.85rem;line-height:1.6">
             Built with Django. Fully deployable on free hosting. Your app, your rules.
