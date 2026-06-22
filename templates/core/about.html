@@ -12,15 +12,19 @@
     margin: 0 auto 1.25rem;
   }
   .feature-card {
-    background: var(--nb-surface-1);
-    border: 1px solid var(--nb-border);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
     border-radius: 12px;
     padding: 1.5rem;
     height: 100%;
-    transition: border-color .2s, transform .2s;
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    box-shadow: var(--glass-shadow), 0 1px 0 var(--glass-border-hi) inset;
+    transition: border-color .2s, transform .2s, background .2s;
   }
   .feature-card:hover {
-    border-color: rgba(92,138,82,.35);
+    border-color: rgba(92,138,82,.4);
+    background: var(--glass-bg-strong);
     transform: translateY(-2px);
   }
   .feature-icon {

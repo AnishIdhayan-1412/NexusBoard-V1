@@ -12,12 +12,15 @@
   @media (max-width: 575.98px) { .comm-grid { grid-template-columns: 1fr; } }
 
   .comm-card {
-    background: var(--nb-surface-1);
-    border: 1px solid var(--nb-border);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
     border-radius: 12px;
     overflow: hidden;
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    box-shadow: var(--glass-shadow), 0 1px 0 var(--glass-border-hi) inset;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s, background 0.2s;
     text-decoration: none;
     color: inherit;
     display: flex;
@@ -139,9 +142,11 @@
     grid-column: 1 / -1;
     text-align: center;
     padding: 3rem 1rem;
-    background: var(--nb-surface-1);
-    border: 1px solid var(--nb-border);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
     border-radius: 12px;
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
   }
 </style>
 {% endblock %}

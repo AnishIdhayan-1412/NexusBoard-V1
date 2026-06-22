@@ -61,10 +61,12 @@
   /* Image preview card — replaces the zone once a file is chosen */
   .image-preview-card {
     display: none;
-    border: 1px solid var(--nb-border);
+    border: 1px solid var(--glass-border);
     border-radius: 10px;
     overflow: hidden;
-    background: var(--nb-surface-2);
+    background: var(--glass-bg-strong);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
   }
   .image-preview-card.show { display: block; }
   .image-preview-card img {
