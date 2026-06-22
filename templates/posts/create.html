@@ -55,7 +55,52 @@
     transition: border-color 0.15s, background 0.15s;
   }
   .upload-zone:hover { border-color: var(--nb-primary); background: rgba(92,138,82,0.05); }
+  .upload-zone.drag-over { border-color: var(--nb-accent); background: rgba(193,105,63,0.08); }
   .upload-zone input[type="file"] { display: none; }
+
+  /* Image preview card — replaces the zone once a file is chosen */
+  .image-preview-card {
+    display: none;
+    border: 1px solid var(--nb-border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--nb-surface-2);
+  }
+  .image-preview-card.show { display: block; }
+  .image-preview-card img {
+    width: 100%;
+    max-height: 260px;
+    object-fit: cover;
+    display: block;
+  }
+  .image-preview-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 12px;
+    font-size: 0.78rem;
+    color: var(--nb-text-muted);
+  }
+  .image-preview-remove {
+    background: none;
+    border: none;
+    color: var(--nb-danger);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: background 0.15s;
+  }
+  .image-preview-remove:hover { background: rgba(193,84,63,0.12); }
+  .image-warning {
+    font-size: 0.78rem;
+    color: var(--nb-accent-warm);
+    margin-top: 6px;
+    display: none;
+  }
+  .image-warning.show { display: block; }
 
   /* Card top accent */
   .create-card { border-top: 3px solid var(--nb-primary); }
@@ -127,12 +172,27 @@
         <!-- Image (image) -->
         <div id="image-section" class="mb-3" style="display:none">
           <label class="form-label">Image</label>
-          <div class="upload-zone" onclick="document.getElementById('id_image').click()">
+
+          <div class="upload-zone" id="uploadZone" onclick="document.getElementById('id_image').click()">
             <i class="bi bi-cloud-upload" style="font-size:1.8rem;color:var(--nb-text-muted)"></i>
-            <p class="text-muted mb-0 mt-1" style="font-size:.85rem">Click to choose an image</p>
+            <p class="text-muted mb-0 mt-1" style="font-size:.85rem">Click to choose, or drag an image here</p>
+            <p class="text-muted mb-0" style="font-size:.72rem;opacity:.8">JPG, PNG, GIF up to 5MB</p>
             {{ form.image }}
           </div>
-          <div id="imageFileName" class="text-muted mt-1" style="font-size:.78rem"></div>
+
+          <div class="image-preview-card" id="imagePreviewCard">
+            <img id="imagePreviewImg" src="" alt="Selected image preview">
+            <div class="image-preview-meta">
+              <span id="imagePreviewInfo"></span>
+              <button type="button" class="image-preview-remove" id="imagePreviewRemove">
+                <i class="bi bi-trash3 me-1"></i>Remove
+              </button>
+            </div>
+          </div>
+
+          <div class="image-warning" id="imageWarning">
+            <i class="bi bi-exclamation-triangle me-1"></i>That file is over 5MB — large images slow down the post for everyone viewing it.
+          </div>
         </div>
 
         <!-- Field errors -->
@@ -199,14 +259,75 @@ if (titleInput) {
   });
 }
 
-/* ── Image filename display ── */
-var imageInput = document.getElementById('id_image');
-if (imageInput) {
+/* ── Image upload: preview, drag & drop, size check, remove ── */
+(function() {
+  var imageInput   = document.getElementById('id_image');
+  var uploadZone   = document.getElementById('uploadZone');
+  var previewCard  = document.getElementById('imagePreviewCard');
+  var previewImg   = document.getElementById('imagePreviewImg');
+  var previewInfo  = document.getElementById('imagePreviewInfo');
+  var removeBtn    = document.getElementById('imagePreviewRemove');
+  var warningBox   = document.getElementById('imageWarning');
+  if (!imageInput) return;
+
+  var MAX_BYTES = 5 * 1024 * 1024; // 5MB — matches the label copy above
+
+  function formatSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
+  function showFile(file) {
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      previewImg.src = e.target.result;
+      previewInfo.textContent = file.name + ' · ' + formatSize(file.size);
+      previewCard.classList.add('show');
+      uploadZone.style.display = 'none';
+      warningBox.classList.toggle('show', file.size > MAX_BYTES);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function clearFile() {
+    imageInput.value = '';
+    previewCard.classList.remove('show');
+    uploadZone.style.display = 'block';
+    warningBox.classList.remove('show');
+  }
+
   imageInput.addEventListener('change', function() {
-    var name = this.files[0] ? this.files[0].name : '';
-    document.getElementById('imageFileName').textContent = name ? '📎 ' + name : '';
+    showFile(this.files[0]);
   });
-}
+
+  removeBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    clearFile();
+  });
+
+  /* Drag and drop onto the zone */
+  ['dragenter', 'dragover'].forEach(function(evt) {
+    uploadZone.addEventListener(evt, function(e) {
+      e.preventDefault();
+      uploadZone.classList.add('drag-over');
+    });
+  });
+  ['dragleave', 'drop'].forEach(function(evt) {
+    uploadZone.addEventListener(evt, function(e) {
+      e.preventDefault();
+      uploadZone.classList.remove('drag-over');
+    });
+  });
+  uploadZone.addEventListener('drop', function(e) {
+    var files = e.dataTransfer.files;
+    if (files && files[0]) {
+      imageInput.files = files; // keeps the real form field in sync for submission
+      showFile(files[0]);
+    }
+  });
+})();
 
 /* ── Init: sync visual tabs with select's current value
    (handles pre-selected value if form re-renders after error) ── */
