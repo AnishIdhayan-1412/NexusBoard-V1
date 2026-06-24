@@ -37,7 +37,7 @@
 
   /* ── Post type badge ────────────────────────────── */
   .post-type-badge { font-size: .68rem; font-weight: 600; padding: 1px 7px; border-radius: 20px; display: inline-flex; align-items: center; gap: 3px; }
-  .type-text  { background: rgba(212,194,168,0.12); color: var(--nb-text-muted); }
+  .type-text  { background: rgba(255,255,255,0.08); color: var(--nb-text-muted); }
   .type-link  { background: rgba(193,105,63,0.12);  color: var(--nb-accent); }
   .type-image { background: rgba(111,174,90,0.12);  color: var(--nb-success); }
 
@@ -200,10 +200,10 @@
       {% cycle 'dot-blue' 'dot-purple' 'dot-green' 'dot-red' 'dot-teal' 'dot-orange' as dotClass silent %}
       <a href="{% url 'communities:detail' community.slug %}" class="community-link">
         <span class="comm-color-dot" style="
-          {% if dotClass == 'dot-blue' %}background:#5c8a52
-          {% elif dotClass == 'dot-purple' %}background:#c1693f
-          {% elif dotClass == 'dot-green' %}background:#d4a23a
-          {% elif dotClass == 'dot-red' %}background:#c1543f
+          {% if dotClass == 'dot-blue' %}background:#2563eb
+          {% elif dotClass == 'dot-purple' %}background:#2563eb
+          {% elif dotClass == 'dot-green' %}background:#f59e0b
+          {% elif dotClass == 'dot-red' %}background:#ef4444
           {% elif dotClass == 'dot-teal' %}background:#7d9b7c
           {% else %}background:#a8784a{% endif %}
         "></span>

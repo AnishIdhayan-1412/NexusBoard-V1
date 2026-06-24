@@ -28,7 +28,7 @@
   }
   .comm-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(92,138,82,0.2);
+    box-shadow: 0 8px 24px rgba(37,99,235,0.2);
     border-color: rgba(92,138,82,0.3);
     color: inherit;
   }
@@ -39,10 +39,10 @@
     flex-shrink: 0;
   }
   /* Six earth-tone banner gradients — moss/clay/ochre/rust/sage/umber, cycles for 6+ communities */
-  .banner-blue   { background: linear-gradient(135deg, #46703d 0%, #7aab6e 100%); } /* moss */
-  .banner-purple { background: linear-gradient(135deg, #8a4a3f 0%, #c1693f 100%); } /* clay */
-  .banner-green  { background: linear-gradient(135deg, #9c7a1f 0%, #d4a23a 100%); } /* ochre */
-  .banner-red    { background: linear-gradient(135deg, #8f3a2c 0%, #c1543f 100%); } /* rust */
+  .banner-blue   { background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%); } /* moss */
+  .banner-purple { background: linear-gradient(135deg, #8a4a3f 0%, #2563eb 100%); } /* clay */
+  .banner-green  { background: linear-gradient(135deg, #9c7a1f 0%, #f59e0b 100%); } /* ochre */
+  .banner-red    { background: linear-gradient(135deg, #8f3a2c 0%, #ef4444 100%); } /* rust */
   .banner-teal   { background: linear-gradient(135deg, #4a6b52 0%, #7d9b7c 100%); } /* sage */
   .banner-orange { background: linear-gradient(135deg, #6b4a2e 0%, #a8784a 100%); } /* umber */
 
@@ -133,7 +133,7 @@
   }
   .comm-filter-input:focus {
     border-color: var(--nb-primary);
-    box-shadow: 0 0 0 3px rgba(92,138,82,0.2);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.2);
   }
   .comm-filter-input::placeholder { color: var(--nb-text-muted); }
 
@@ -203,7 +203,7 @@
             <span class="comm-badge-stat"><strong>{{ community.member_count }}</strong> member{{ community.member_count|pluralize }}</span>
             <span class="comm-badge-stat"><strong>{{ community.post_count }}</strong> post{{ community.post_count|pluralize }}</span>
             {% if user.is_authenticated %}
-            <span class="badge" style="background:rgba(92,138,82,0.15);color:var(--nb-primary-light);font-size:.68rem;border-radius:20px">Join</span>
+            <span class="badge" style="background:rgba(37,99,235,0.15);color:var(--nb-primary-light);font-size:.68rem;border-radius:20px">Join</span>
             {% endif %}
           </div>
         </div>
