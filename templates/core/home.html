@@ -5,9 +5,15 @@
 <style>
   /* ── Sort tabs ───────────────────────────────────── */
   .sort-tabs { display: flex; gap: 4px; margin-bottom: 1rem; }
-  .sort-tab { padding: 5px 18px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; text-decoration: none; color: var(--nb-text-muted); background: var(--nb-surface-1); border: 1px solid var(--nb-border); transition: all 0.15s; }
-  .sort-tab:hover { color: var(--nb-text); border-color: var(--nb-primary); }
-  .sort-tab.active { background: var(--nb-primary); color: #fff; border-color: var(--nb-primary); }
+  .sort-tab {
+    padding: 5px 18px; border-radius: 20px; font-size: 0.82rem; font-weight: 600;
+    text-decoration: none; color: var(--nb-text-muted);
+    background: var(--glass-bg); border: 1px solid var(--glass-border);
+    backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+    transition: all 0.15s;
+  }
+  .sort-tab:hover { color: var(--nb-text); border-color: var(--nb-primary); background: var(--glass-bg-strong); }
+  .sort-tab.active { background: var(--nb-primary); color: #fff; border-color: var(--nb-primary); backdrop-filter: none; -webkit-backdrop-filter: none; }
 
   /* ── Welcome banner ─────────────────────────────── */
   .welcome-banner {
