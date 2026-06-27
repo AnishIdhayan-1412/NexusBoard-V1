@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anish Idhayan — Systems &amp; ML Engineer</title>
+<meta name="description" content="Portfolio of Anish Idhayan — B.Tech CSE-AIML student, RHCSA-certified, full-stack and DevOps builder.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F6F7F9;
+    --surface:#FFFFFF;
+    --border:#E1E4EA;
+    --ink:#12151A;
+    --muted:#5B6470;
+    --faint:#8A92A0;
+    --accent:#1F7A5C;
+    --accent-soft:#DEEFE6;
+    --rust:#A6571B;
+    --rust-soft:#F4E6D8;
+    --mono:'IBM Plex Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+    --sans:'IBM Plex Sans', -apple-system, 'Segoe UI', sans-serif;
+    --maxw:1040px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--accent); text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  :focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:2px;}
+
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 28px;}
+
+  /* ---------- status bar ---------- */
+  .statusbar{
+    position:sticky; top:0; z-index:50;
+    background:rgba(246,247,249,0.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--border);
+  }
+  .statusbar .wrap{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:13px 28px;
+    font-family:var(--mono); font-size:12px; letter-spacing:.04em;
+  }
+  .statusbar .left{color:var(--muted); font-weight:600;}
+  .statusbar .right{display:flex; align-items:center; gap:8px; color:var(--accent); font-weight:600;}
+  .dot{width:7px; height:7px; border-radius:50%; background:var(--accent); display:inline-block; transform-box:fill-box;}
+  .dot.pulse{animation:pulse 2.2s ease-in-out infinite;}
+
+  /* ---------- hero ---------- */
+  .hero{padding:64px 0 40px;}
+  .hero-grid{display:grid; grid-template-columns:1.15fr 0.85fr; gap:40px; align-items:center;}
+  .eyebrow{font-family:var(--mono); font-size:12px; color:var(--accent); letter-spacing:.08em; margin:0 0 14px;}
+  .eyebrow::before{content:"// ";}
+  h1.name{
+    font-family:var(--mono); font-weight:700; letter-spacing:-0.01em;
+    font-size:clamp(34px,5vw,54px); margin:0 0 6px; line-height:1.05;
+  }
+  .role{font-family:var(--sans); font-size:18px; color:var(--muted); margin:0 0 20px; font-weight:500;}
+  .bio{font-size:16px; color:var(--ink); max-width:54ch; margin:0 0 24px;}
+  .chips{display:flex; flex-wrap:wrap; gap:10px;}
+  .chip{
+    font-family:var(--mono); font-size:12.5px; color:var(--ink);
+    background:var(--surface); border:1px solid var(--border); border-radius:6px;
+    padding:7px 11px; display:inline-flex; align-items:center; gap:6px;
+  }
+  .chip a{color:inherit;}
+  .chip a:hover{text-decoration:none; color:var(--accent);}
+
+  .graph-wrap{display:flex; justify-content:center;}
+  .graph-wrap svg{width:100%; max-width:340px; height:auto;}
+  .node-label{font-family:var(--mono); font-size:10.5px; fill:var(--muted); font-weight:600; letter-spacing:.03em;}
+  .node-center{fill:var(--ink);}
+  .node-sat{fill:var(--surface); stroke:var(--accent); stroke-width:2;}
+  .edge{stroke:var(--border); stroke-width:1.5;}
+  .pulseNode{animation:nodepulse 2.6s ease-in-out infinite; transform-box:fill-box; transform-origin:center;}
+  .packet{fill:var(--accent);}
+  .p-top{animation:travel-top 3.2s linear infinite;}
+  .p-right{animation:travel-right 3.2s linear infinite; animation-delay:.6s;}
+  .p-bottom{animation:travel-bottom 3.2s linear infinite; animation-delay:1.2s;}
+  .p-left{animation:travel-left 3.2s linear infinite; animation-delay:1.8s;}
+
+  @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:.35;}}
+  @keyframes nodepulse{0%,100%{transform:scale(1);} 50%{transform:scale(1.12);}}
+  @keyframes travel-top{0%{transform:translate(0,0); opacity:0;} 10%{opacity:1;} 90%{opacity:1;} 100%{transform:translate(0,-128px); opacity:0;}}
+  @keyframes travel-right{0%{transform:translate(0,0); opacity:0;} 10%{opacity:1;} 90%{opacity:1;} 100%{transform:translate(128px,0); opacity:0;}}
+  @keyframes travel-bottom{0%{transform:translate(0,0); opacity:0;} 10%{opacity:1;} 90%{opacity:1;} 100%{transform:translate(0,128px); opacity:0;}}
+  @keyframes travel-left{0%{transform:translate(0,0); opacity:0;} 10%{opacity:1;} 90%{opacity:1;} 100%{transform:translate(-128px,0); opacity:0;}}
+  @media (prefers-reduced-motion: reduce){
+    .dot.pulse,.pulseNode,.packet{animation:none !important;}
+  }
+
+  /* ---------- sections ---------- */
+  section{padding:46px 0; border-top:1px solid var(--border);}
+  .sec-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:26px; flex-wrap:wrap; gap:8px;}
+  .sec-title{font-family:var(--mono); font-size:13px; letter-spacing:.08em; color:var(--muted); font-weight:600; margin:0;}
+  .sec-title::before{content:"// "; color:var(--accent);}
+  .sec-note{font-family:var(--mono); font-size:12px; color:var(--faint);}
+
+  /* services / skills */
+  .svc-row{display:grid; grid-template-columns:150px 1fr; gap:18px; padding:10px 0; border-bottom:1px dashed var(--border);}
+  .svc-row:last-child{border-bottom:none;}
+  .svc-label{font-family:var(--mono); font-size:12.5px; color:var(--ink); font-weight:600; padding-top:4px;}
+  .pillrow{display:flex; flex-wrap:wrap; gap:8px;}
+  .pill{
+    font-size:13px; color:var(--ink); background:var(--surface);
+    border:1px solid var(--border); border-radius:20px; padding:5px 13px;
+  }
+
+  /* nodes / projects */
+  .nodegrid{display:grid; grid-template-columns:repeat(2,1fr); gap:18px;}
+  .card{
+    background:var(--surface); border:1px solid var(--border); border-radius:10px;
+    padding:22px; display:flex; flex-direction:column; gap:12px;
+  }
+  .card-head{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .card-title{font-family:var(--mono); font-weight:700; font-size:16px; margin:0;}
+  .status-pill{font-family:var(--mono); font-size:10.5px; font-weight:700; letter-spacing:.05em; padding:3px 9px; border-radius:20px; white-space:nowrap;}
+  .status-live{background:var(--accent-soft); color:var(--accent);}
+  .status-stable{background:#EDEFF2; color:var(--muted);}
+  .status-active{background:var(--rust-soft); color:var(--rust);}
+  .card-meta{font-family:var(--mono); font-size:11.5px; color:var(--faint);}
+  .stacks{display:flex; flex-wrap:wrap; gap:6px; margin:2px 0 0;}
+  .stack-tag{font-family:var(--mono); font-size:10.5px; color:var(--muted); background:var(--bg); border:1px solid var(--border); padding:2px 7px; border-radius:4px;}
+  .card ul{margin:4px 0 0; padding-left:18px; font-size:14px;}
+  .card li{margin-bottom:5px;}
+  .card-link{font-family:var(--mono); font-size:12.5px; font-weight:600; margin-top:auto;}
+
+  /* uptime log / experience */
+  .log{display:flex; flex-direction:column;}
+  .log-entry{display:grid; grid-template-columns:170px 1fr; gap:18px; padding:16px 0; border-bottom:1px dashed var(--border);}
+  .log-entry:last-child{border-bottom:none;}
+  .log-time{font-family:var(--mono); font-size:12px; color:var(--faint); padding-top:2px;}
+  .log-time .place{display:block; color:var(--muted); margin-top:3px;}
+  .log-title{font-weight:600; margin:0 0 6px; font-size:15.5px;}
+  .log-body{font-size:14px; color:var(--ink); margin:0;}
+  .log-body + .log-body{margin-top:6px;}
+
+  /* credentials */
+  .credcard{
+    background:var(--surface); border:1px solid var(--border); border-radius:10px;
+    padding:22px 24px; display:flex; gap:20px; align-items:flex-start; flex-wrap:wrap;
+  }
+  .badge{
+    width:54px; height:54px; flex:none; border-radius:50%;
+    border:2px solid var(--rust); display:flex; align-items:center; justify-content:center;
+    font-family:var(--mono); font-weight:700; font-size:11px; color:var(--rust); text-align:center;
+  }
+  .credcard h3{margin:0 0 4px; font-size:16px;}
+  .credcard .cred-meta{font-family:var(--mono); font-size:12px; color:var(--faint); margin-bottom:8px;}
+  .credcard p{margin:0; font-size:14px; max-width:60ch;}
+
+  /* system log / education */
+  .timeline{position:relative; padding-left:26px;}
+  .timeline::before{content:""; position:absolute; left:5px; top:6px; bottom:6px; width:1px; background:var(--border);}
+  .tl-item{position:relative; padding-bottom:26px;}
+  .tl-item:last-child{padding-bottom:0;}
+  .tl-item::before{content:""; position:absolute; left:-26px; top:4px; width:9px; height:9px; border-radius:50%; background:var(--surface); border:2px solid var(--accent);}
+  .tl-year{font-family:var(--mono); font-size:12px; color:var(--accent); font-weight:700;}
+  .tl-title{margin:2px 0 2px; font-weight:600; font-size:15px;}
+  .tl-sub{font-size:13.5px; color:var(--muted); margin:0;}
+
+  footer{padding:50px 0 60px;}
+  .footer-grid{display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:24px;}
+  .footer-cta h2{font-family:var(--mono); font-size:24px; margin:0 0 10px;}
+  .footer-cta p{color:var(--muted); margin:0 0 16px; max-width:42ch;}
+  .btn{
+    font-family:var(--mono); font-weight:700; font-size:13px; letter-spacing:.03em;
+    background:var(--ink); color:#fff; padding:11px 18px; border-radius:7px; display:inline-block;
+  }
+  .btn:hover{background:var(--accent); text-decoration:none;}
+  .footer-meta{font-family:var(--mono); font-size:11.5px; color:var(--faint); text-align:right;}
+  .footer-meta div{margin-bottom:4px;}
+
+  @media (max-width:760px){
+    .hero-grid{grid-template-columns:1fr;}
+    .graph-wrap{order:-1; margin-bottom:8px;}
+    .nodegrid{grid-template-columns:1fr;}
+    .svc-row{grid-template-columns:1fr; gap:6px;}
+    .log-entry{grid-template-columns:1fr; gap:4px;}
+    .footer-grid{flex-direction:column; align-items:flex-start;}
+    .footer-meta{text-align:left;}
+  }
+</style>
+</head>
+<body>
+
+<div class="statusbar">
+  <div class="wrap">
+    <span class="left">ANISH_IDHAYAN.SYS</span>
+    <span class="right"><span class="dot pulse"></span>STATUS: OPEN TO INTERNSHIPS · GRAD 2027</span>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="eyebrow">whoami</p>
+      <h1 class="name">Anish Idhayan</h1>
+      <p class="role">B.Tech CSE&nbsp;(AI&nbsp;&amp;&nbsp;ML) · RHCSA-Certified · Builder of full-stack &amp; distributed systems</p>
+      <p class="bio">I'm a pre-final-year student at SRM IST Trichy who likes building the parts of a system most people never see — the deploy pipeline, the access control, the thing that keeps running at 2&nbsp;a.m. I'm RHCSA-certified, I ship full-stack apps end to end, and I once turned two old Android phones into a working AI-inference cluster because I was curious whether I could. Currently looking for an SDE&nbsp;/&nbsp;DevOps&nbsp;/&nbsp;ML internship.</p>
+      <div class="chips">
+        <span class="chip">📍 Virudhunagar, Tamil Nadu</span>
+        <span class="chip">✉️ <a href="mailto:anishidhayan95@gmail.com">anishidhayan95@gmail.com</a></span>
+        <span class="chip">☎ <a href="tel:+919791774015">+91 97917 74015</a></span>
+        <span class="chip">in <a href="https://linkedin.com/in/anish-idhayan-i-705911289" target="_blank" rel="noopener">LinkedIn</a></span>
+      </div>
+    </div>
+    <div class="graph-wrap" aria-hidden="true">
+      <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+        <line class="edge" x1="200" y1="200" x2="200" y2="72"/>
+        <line class="edge" x1="200" y1="200" x2="328" y2="200"/>
+        <line class="edge" x1="200" y1="200" x2="200" y2="328"/>
+        <line class="edge" x1="200" y1="200" x2="72" y2="200"/>
+
+        <circle class="packet p-top" cx="200" cy="200" r="4"/>
+        <circle class="packet p-right" cx="200" cy="200" r="4"/>
+        <circle class="packet p-bottom" cx="200" cy="200" r="4"/>
+        <circle class="packet p-left" cx="200" cy="200" r="4"/>
+
+        <g class="pulseNode"><circle class="node-sat" cx="200" cy="72" r="22"/></g>
+        <g class="pulseNode" style="animation-delay:.4s"><circle class="node-sat" cx="328" cy="200" r="22"/></g>
+        <g class="pulseNode" style="animation-delay:.8s"><circle class="node-sat" cx="200" cy="328" r="22"/></g>
+        <g class="pulseNode" style="animation-delay:1.2s"><circle class="node-sat" cx="72" cy="200" r="22"/></g>
+
+        <text class="node-label" x="200" y="76" text-anchor="middle">SYS</text>
+        <text class="node-label" x="328" y="204" text-anchor="middle">WEB</text>
+        <text class="node-label" x="200" y="332" text-anchor="middle">ML</text>
+        <text class="node-label" x="72" y="204" text-anchor="middle">OPS</text>
+
+        <circle class="node-center" cx="200" cy="200" r="30"/>
+        <text x="200" y="205" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" font-weight="700" fill="#fff">ME</text>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<!-- 01 SKILLS -->
+<section id="services">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 class="sec-title">01 — running services</h2>
+      <span class="sec-note">skills currently in production</span>
+    </div>
+
+    <div class="svc-row">
+      <div class="svc-label">Languages</div>
+      <div class="pillrow">
+        <span class="pill">Python</span><span class="pill">C</span><span class="pill">Bash</span><span class="pill">SQL</span>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-label">Frameworks &amp; APIs</div>
+      <div class="pillrow">
+        <span class="pill">Django</span><span class="pill">Flask</span><span class="pill">REST API</span><span class="pill">HTML/CSS</span>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-label">ML / NLP</div>
+      <div class="pillrow">
+        <span class="pill">SBERT</span><span class="pill">spaCy</span><span class="pill">scikit-learn</span>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-label">DevOps &amp; Cloud</div>
+      <div class="pillrow">
+        <span class="pill">Docker</span><span class="pill">Kubernetes</span><span class="pill">Ansible</span><span class="pill">GitHub Actions</span><span class="pill">GCP</span>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-label">Databases</div>
+      <div class="pillrow">
+        <span class="pill">PostgreSQL</span><span class="pill">MySQL</span>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-label">Infrastructure</div>
+      <div class="pillrow">
+        <span class="pill">Linux (RHEL/Ubuntu)</span><span class="pill">SELinux</span><span class="pill">TCP/IP networking</span>
+      </div>
+    </div>
+    <div class="svc-row">
+      <div class="svc-label">Tools</div>
+      <div class="pillrow">
+        <span class="pill">Git</span><span class="pill">Cloudflare Tunnels</span><span class="pill">Cloudinary</span><span class="pill">Railway</span><span class="pill">Ollama</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 PROJECTS -->
+<section id="nodes">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 class="sec-title">02 — deployed nodes</h2>
+      <span class="sec-note">things I've built and shipped</span>
+    </div>
+    <div class="nodegrid">
+
+      <div class="card">
+        <div class="card-head">
+          <h3 class="card-title">Canopy</h3>
+          <span class="status-pill status-live">LIVE</span>
+        </div>
+        <div class="card-meta">Full-stack community platform · 2025</div>
+        <div class="stacks">
+          <span class="stack-tag">Django</span><span class="stack-tag">PostgreSQL</span><span class="stack-tag">Cloudinary</span><span class="stack-tag">Docker</span><span class="stack-tag">Railway</span><span class="stack-tag">GitHub Actions</span>
+        </div>
+        <ul>
+          <li>Reddit-style platform for students &amp; developers with role-based moderation and cached vote scoring.</li>
+          <li>Built a custom Django&nbsp;6-compatible storage backend for Cloudinary, fixing real third-party compatibility bugs.</li>
+          <li>Containerized and deployed on Railway with automated CI/CD via GitHub Actions.</li>
+        </ul>
+        <a class="card-link" href="https://nexusboard-v1-production.up.railway.app/" target="_blank" rel="noopener">→ visit live site</a>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3 class="card-title">Bias-Free Hiring Pipeline</h3>
+          <span class="status-pill status-stable">STABLE</span>
+        </div>
+        <div class="card-meta">NLP / MLOps · 2025</div>
+        <div class="stacks">
+          <span class="stack-tag">Python</span><span class="stack-tag">Flask</span><span class="stack-tag">spaCy</span><span class="stack-tag">SBERT</span><span class="stack-tag">Docker</span>
+        </div>
+        <ul>
+          <li>End-to-end bias-aware recruitment pipeline that anonymizes CVs and semantically ranks candidates against job descriptions using SBERT.</li>
+          <li>GDPR-compliant, tamper-evident audit trail with SHA-256 sidecars and structured JSON logging for full traceability.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3 class="card-title">Distributed Phone AI Cluster</h3>
+          <span class="status-pill status-stable">STABLE</span>
+        </div>
+        <div class="card-meta">DevOps / Edge AI · May 2026</div>
+        <div class="stacks">
+          <span class="stack-tag">Ansible</span><span class="stack-tag">Flask</span><span class="stack-tag">Ollama</span><span class="stack-tag">Cloudflare Tunnels</span>
+        </div>
+        <ul>
+          <li>Orchestrated two Android phones as Ollama inference worker nodes via Ansible automation from an Ubuntu laptop.</li>
+          <li>Built a round-robin Flask load balancer, exposed globally via Cloudflare Tunnels — solving real SSH key management, process lifecycle, and persistence problems along the way.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3 class="card-title">LifeOS</h3>
+          <span class="status-pill status-active">ACTIVE</span>
+        </div>
+        <div class="card-meta">Personal productivity framework · 2025</div>
+        <div class="stacks">
+          <span class="stack-tag">Markdown</span><span class="stack-tag">YAML</span><span class="stack-tag">Obsidian/Notion</span>
+        </div>
+        <ul>
+          <li>An all-in-one personal operating system using structured YAML frontmatter to keep habit, task, and knowledge workflows portable — no platform lock-in.</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- 03 EXPERIENCE -->
+<section id="log">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 class="sec-title">03 — uptime log</h2>
+      <span class="sec-note">internships &amp; work history</span>
+    </div>
+    <div class="log">
+      <div class="log-entry">
+        <div class="log-time">Jun – Jul 2025<span class="place">Part-time · Dindigul</span></div>
+        <div>
+          <p class="log-title">Full Stack Python Intern — Ultragits Career Lines</p>
+          <p class="log-body">Built and shipped Flask + REST API web applications, handling everything from route design to deployment.</p>
+        </div>
+      </div>
+      <div class="log-entry">
+        <div class="log-time">Dec 2024<span class="place">Trichy</span></div>
+        <div>
+          <p class="log-title">Web Development Intern — CodeBind Technologies</p>
+          <p class="log-body">Developed a Business Management System using HTML, CSS, PHP, and MySQL.</p>
+          <p class="log-body">Completed an AI workshop and corporate aptitude training alongside the internship.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 04 CERTIFICATIONS -->
+<section id="cred">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 class="sec-title">04 — credentials</h2>
+      <span class="sec-note">verified, not self-reported</span>
+    </div>
+    <div class="credcard">
+      <div class="badge">RHCSA<br>✓</div>
+      <div>
+        <h3>Red Hat Certified System Administrator</h3>
+        <div class="cred-meta">Red Hat · Credential ID 260-036-678 · Valid Mar 2026 – Mar 2029 · verified via Credly</div>
+        <p>Validated hands-on proficiency in RHEL system administration — local storage, SELinux, user/group management, and network services.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 05 EDUCATION -->
+<section id="boot">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 class="sec-title">05 — system log</h2>
+      <span class="sec-note">education, boot to present</span>
+    </div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-year">2021</div>
+        <p class="tl-title">Class X — State Board</p>
+        <p class="tl-sub">St. Mary's Matriculation School, Kariyapatti</p>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">2023</div>
+        <p class="tl-title">Class XII — State Board · 92.83%</p>
+        <p class="tl-sub">Sundram Matric Hr Sec School, Krishnapuram Aviyur — Centum (100/100) in Computer Science</p>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">Expected 2027</div>
+        <p class="tl-title">B.Tech, Computer Science &amp; Engineering (AI &amp; ML) — CGPA 9.45/10.0</p>
+        <p class="tl-sub">SRM Institute of Science &amp; Technology, Trichy</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap footer-grid">
+    <div class="footer-cta">
+      <h2>Let's talk.</h2>
+      <p>Open to SDE, DevOps, and ML engineering internships — and always happy to talk through how something was built.</p>
+      <a class="btn" href="mailto:anishidhayan95@gmail.com">Email me →</a>
+    </div>
+    <div class="footer-meta">
+      <div>Tamil — native</div>
+      <div>English — working proficiency</div>
+      <div>Hindi — basic</div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

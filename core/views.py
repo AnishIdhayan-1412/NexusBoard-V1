@@ -87,6 +87,11 @@ def search_view(request):
     })
 
 
+def portfolio_view(request):
+    from django.shortcuts import render
+    return render(request, 'core/portfolio.html')
+
+
 def health_check_view(request):
     from django.db import connection
     try:

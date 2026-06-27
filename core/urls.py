@@ -9,5 +9,6 @@ urlpatterns = [
     path('about/', views.about_view, name='about'),
     path('search/', views.search_view, name='search'),
     path('health/', views.health_check_view, name='health'),
+    path('portfolio/', views.portfolio_view, name='portfolio'),
     path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
 ]
