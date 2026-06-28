@@ -121,7 +121,13 @@
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
       font-size: 0.95rem;
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
+    /* The content wrapper grows to fill leftover vertical space,
+       pushing the footer to the bottom even when a page (like an
+       empty Communities list) has very little content. */
+    .nb-page-content { flex: 1 0 auto; }
     @media (max-width: 991.98px) { body { padding-bottom: 72px; } }
 
     h1, h2, h3, h4, h5, h6 { font-family: 'Inter', system-ui, sans-serif; letter-spacing: -0.01em; }
@@ -136,6 +142,7 @@
       -webkit-backdrop-filter: var(--glass-blur);
       box-shadow: 0 1px 0 var(--glass-border-hi) inset;
       padding: 0.6rem 0;
+      flex-shrink: 0;
     }
     .navbar-brand {
       display: flex; align-items: center; gap: 9px;
@@ -288,6 +295,7 @@
       -webkit-backdrop-filter: blur(10px) saturate(130%);
       padding: 1rem 0;
       margin-top: 3rem;
+      flex-shrink: 0;
     }
     .nb-footer-inner { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--nb-text-muted); }
     .nb-footer a { color: var(--nb-text-muted); text-decoration: none; transition: color 0.12s; }
@@ -458,7 +466,7 @@
   </div>
 </nav>
 
-<div class="container-xl py-3">
+<div class="container-xl py-3 nb-page-content">
   {% for message in messages %}
   <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'info' }}{% endif %} alert-dismissible fade show" role="alert">
     {{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
