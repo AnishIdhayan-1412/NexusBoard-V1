@@ -29,15 +29,12 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Archivo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <style>
     /* ══════════════════════════════════════════════════════════
-       UNDERSTORY — design tokens
-       A forest-floor palette: warm bark ink ground, parchment
-       text, moss/clay/amber as the living accents. Breaks from
-       the blue-on-black default deliberately.
+       CANOPY — design tokens (black / white / blue)
        ══════════════════════════════════════════════════════════ */
     :root {
       --nb-primary:       #2563eb;
@@ -59,34 +56,33 @@
       --nb-danger:        #ef4444;
 
       /* Glass surfaces — translucent bark, blurred, with a light-catching border */
-      --glass-bg:         rgba(38,32,25,0.55);
-      --glass-bg-strong:  rgba(38,32,25,0.72);
-      --glass-border:     rgba(236,228,211,0.12);
-      --glass-border-hi:  rgba(236,228,211,0.22);
+      --glass-bg:         rgba(10,10,10,0.7);
+      --glass-bg-strong:  rgba(10,10,10,0.85);
+      --glass-border:     rgba(255,255,255,0.07);
+      --glass-border-hi:  rgba(255,255,255,0.12);
       --glass-shadow:     0 8px 32px rgba(0,0,0,0.35);
       --glass-blur:       blur(16px) saturate(140%);
 
       
-      --font-body:    'Archivo', system-ui, -apple-system, sans-serif;
-      --font-mono:    'Space Mono', 'Courier New', monospace;
+      --font-sans:    'Inter', system-ui, -apple-system, sans-serif;
+      --font-mono:    ui-monospace, 'SF Mono', Consolas, monospace;
     }
 
     *, *::before, *::after { box-sizing: border-box; }
     body {
       background: var(--nb-surface);
       background-image:
-        radial-gradient(circle at 12% 8%, rgba(92,138,82,0.16), transparent 42%),
-        radial-gradient(circle at 88% 18%, rgba(37,99,235,0.14), transparent 40%),
-        radial-gradient(circle at 50% 85%, rgba(212,162,58,0.08), transparent 45%);
+        radial-gradient(circle at 15% 10%, rgba(37,99,235,0.07), transparent 40%),
+        radial-gradient(circle at 85% 20%, rgba(59,130,246,0.05), transparent 38%);
       background-attachment: fixed;
       color: var(--nb-text);
-      font-family: var(--font-body);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
       font-size: 0.95rem;
       min-height: 100vh;
     }
     @media (max-width: 991.98px) { body { padding-bottom: 72px; } }
 
-    h1, h2, h3, h4, h5, h6 { font-family: var(--font-sans); letter-spacing: -0.01em; }
+    h1, h2, h3, h4, h5, h6 { font-family: 'Inter', system-ui, sans-serif; letter-spacing: -0.01em; }
 
     @keyframes pulse-up { 0% { transform: scale(1); } 40% { transform: scale(1.35); } 100% { transform: scale(1); } }
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -101,7 +97,7 @@
     }
     .navbar-brand {
       display: flex; align-items: center; gap: 9px;
-      font-family: var(--font-sans); font-weight: 600; font-size: 1.3rem;
+      font-family: 'Inter', system-ui, sans-serif; font-weight: 600; font-size: 1.3rem;
       color: var(--nb-text) !important; text-decoration: none; letter-spacing: -0.01em;
     }
     .navbar-brand .nb-hex { width: 26px; height: 26px; flex-shrink: 0; }
@@ -140,7 +136,7 @@
       min-width: 180px;
     }
     .dropdown-item { color: var(--nb-text); border-radius: 4px; font-size: 0.88rem; padding: 0.5rem 0.75rem; transition: background 0.12s; }
-    .dropdown-item:hover { background: rgba(92,138,82,0.14); color: #fff; }
+    .dropdown-item:hover { background: rgba(37,99,235,0.15); color: #fff; }
     .dropdown-divider { border-color: var(--nb-border); margin: 0.3rem 0; }
 
     .card {
@@ -156,8 +152,8 @@
     .card-hover:hover {
       transform: translateY(-3px);
       background: var(--glass-bg-strong);
-      border-color: rgba(122,171,110,0.4);
-      box-shadow: 0 12px 32px rgba(92,138,82,0.22), 0 1px 0 var(--glass-border-hi) inset;
+      border-color: rgba(37,99,235,0.35);
+      box-shadow: 0 12px 32px rgba(37,99,235,0.15), 0 1px 0 var(--glass-border-hi) inset;
     }
     .post-card { border-left: 3px solid var(--nb-accent); }
 
@@ -168,13 +164,13 @@
     .form-control:focus, .form-select:focus { background: var(--nb-surface-2); border-color: var(--nb-primary); color: var(--nb-text); box-shadow: 0 0 0 3px rgba(37,99,235,0.25); outline: none; }
     .form-control::placeholder { color: var(--nb-text-muted); }
     .form-select option { background: var(--nb-surface-2); }
-    .form-label { font-family: var(--font-sans); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--nb-text-muted); margin-bottom: 0.35rem; }
+    .form-label { font-family: 'Inter', system-ui, sans-serif; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--nb-text-muted); margin-bottom: 0.35rem; }
 
     .vote-btn { background: none; border: none; color: var(--nb-text-muted); font-size: 1.1rem; padding: 3px 6px; border-radius: 4px; transition: color 0.15s, background 0.15s; line-height: 1; }
     .vote-btn:hover { color: var(--nb-accent-warm); background: rgba(245,158,11,0.15); }
     .vote-btn.up-active { color: var(--nb-accent-warm); animation: pulse-up 0.35s ease; }
     .vote-btn.down-active { color: var(--nb-danger); }
-    .vote-score { font-family: var(--font-sans); font-weight: 700; font-size: 1.05rem; min-width: 32px; text-align: center; transition: color 0.2s; }
+    .vote-score { font-family: 'Inter', system-ui, sans-serif; font-weight: 700; font-size: 1.05rem; min-width: 32px; text-align: center; transition: color 0.2s; }
     .vote-score.positive { color: var(--nb-accent-warm); }
     .vote-score.negative { color: var(--nb-danger); }
     .vote-score.zero { color: var(--nb-text-muted); }
@@ -189,19 +185,19 @@
       padding: 1.15rem;
       margin-bottom: 1rem;
     }
-    .sidebar-widget h6 { font-family: var(--font-sans); color: var(--nb-text-muted); text-transform: uppercase; font-size: 0.66rem; letter-spacing: 0.12em; font-weight: 700; margin-bottom: 0.8rem; }
+    .sidebar-widget h6 { font-family: 'Inter', system-ui, sans-serif; color: var(--nb-text-muted); text-transform: uppercase; font-size: 0.66rem; letter-spacing: 0.12em; font-weight: 700; margin-bottom: 0.8rem; }
     .community-link { display: flex; align-items: center; gap: 9px; padding: 7px 0; text-decoration: none; color: var(--nb-text); transition: color 0.15s, padding-left 0.15s; border-radius: 4px; }
     .community-link:hover { color: var(--nb-primary-light); padding-left: 4px; }
     .community-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-    .member-pill { background: var(--nb-surface-2); color: var(--nb-text-muted); font-family: var(--font-sans); font-size: 0.68rem; font-weight: 700; border-radius: 3px; padding: 1px 7px; }
+    .member-pill { background: var(--nb-surface-2); color: var(--nb-text-muted); font-family: 'Inter', system-ui, sans-serif; font-size: 0.68rem; font-weight: 700; border-radius: 3px; padding: 1px 7px; }
 
-    .badge-comm { background: rgba(92,138,82,0.16); color: var(--nb-primary-light); border: 1px solid rgba(92,138,82,0.3); border-radius: 3px; padding: 2px 9px; font-family: var(--font-sans); font-size: 0.7rem; font-weight: 700; text-decoration: none; display: inline-block; transition: background 0.15s; letter-spacing: 0.02em; }
-    .badge-comm:hover { background: rgba(92,138,82,0.3); color: var(--nb-primary-light); }
+    .badge-comm { background: rgba(37,99,235,0.12); color: var(--nb-primary-light); border: 1px solid rgba(37,99,235,0.25); border-radius: 3px; padding: 2px 9px; font-family: 'Inter', system-ui, sans-serif; font-size: 0.7rem; font-weight: 700; text-decoration: none; display: inline-block; transition: background 0.15s; letter-spacing: 0.02em; }
+    .badge-comm:hover { background: rgba(37,99,235,0.22); color: var(--nb-primary-light); }
 
     .post-meta { font-size: 0.8rem; color: var(--nb-text-muted); }
     .post-meta a { color: var(--nb-text-muted); text-decoration: none; transition: color 0.12s; }
     .post-meta a:hover { color: var(--nb-primary-light); }
-    .post-title-link { font-family: var(--font-sans); color: var(--nb-text); text-decoration: none; font-weight: 600; line-height: 1.4; transition: color 0.15s; }
+    .post-title-link { font-family: 'Inter', system-ui, sans-serif; color: var(--nb-text); text-decoration: none; font-weight: 600; line-height: 1.4; transition: color 0.15s; }
     .post-title-link:hover { color: var(--nb-primary-light); }
 
     .comment-card {
@@ -224,8 +220,8 @@
     .alert { border-radius: 8px; border: none; font-size: 0.9rem; border-left: 3px solid transparent; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
     .alert-success { background: rgba(111,174,90,0.15);  color: #a8d49a; border-left-color: var(--nb-success); }
     .alert-danger  { background: rgba(193,84,63,0.15);   color: #e3a89b; border-left-color: var(--nb-danger); }
-    .alert-info    { background: rgba(37,99,235,0.12);  color: #e0ad8d; border-left-color: var(--nb-accent); }
-    .alert-warning { background: rgba(212,162,58,0.15);  color: #ecce8f; border-left-color: var(--nb-accent-warm); }
+    .alert-info    { background: rgba(37,99,235,0.12);  color: #93c5fd; border-left-color: var(--nb-accent); }
+    .alert-warning { background: rgba(245,158,11,0.15);  color: #ecce8f; border-left-color: var(--nb-accent-warm); }
 
     .mobile-bottom-nav {
       display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
@@ -236,10 +232,10 @@
     }
     @media (max-width: 991.98px) { .mobile-bottom-nav { display: flex; } }
     .mob-nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: var(--nb-text-muted); font-size: 0.62rem; font-weight: 500; padding: 6px 10px; border-radius: 8px; transition: color 0.15s, background 0.15s; min-width: 48px; }
-    .mob-nav-item:hover, .mob-nav-item.active { color: var(--nb-primary-light); background: rgba(92,138,82,0.12); }
+    .mob-nav-item:hover, .mob-nav-item.active { color: var(--nb-primary-light); background: rgba(37,99,235,0.12); }
     .mob-nav-item i { font-size: 1.25rem; line-height: 1; }
     .mob-nav-fab { width: 46px; height: 46px; border-radius: 50%; background: var(--nb-accent); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; box-shadow: 0 4px 14px rgba(37,99,235,0.5); transition: background 0.15s, transform 0.15s; text-decoration: none; margin-top: -10px; }
-    .mob-nav-fab:hover { background: #a8552f; color: #fff; transform: scale(1.08); }
+    .mob-nav-fab:hover { background: var(--nb-primary-dark); color: #fff; transform: scale(1.08); }
 
     .nb-footer {
       background: var(--glass-bg);
@@ -337,7 +333,7 @@
 
 <footer class="nb-footer d-none d-lg-block">
   <div class="container-xl nb-footer-inner">
-    <span style="font-family:var(--font-sans)">◎ Canopy — Grow Together</span>
+    <span style="font-family:'Inter', system-ui, sans-serif">◎ Canopy — Grow Together</span>
     <div class="d-flex gap-3">
       <a href="{% url 'core:about' %}">About</a> <a href="{% url 'core:portfolio' %}" style="background:var(--nb-primary);color:#fff;border-radius:7px;padding:5px 12px;font-size:.78rem;font-weight:600;text-decoration:none">🧑‍💻 Builder's Portfolio</a>
       <a href="{% url 'core:health' %}">Health</a>
