@@ -111,6 +111,20 @@
     body.light-mode .btn-primary { color: #fff; }
 
     *, *::before, *::after { box-sizing: border-box; }
+
+    /* Smooth theme crossfade — every surface that reads a --nb-*/--glass-*
+       token fades between dark/light instead of snapping instantly.
+       Scoped to color-only properties so layout/animations elsewhere
+       (card hover lift, vote pulse, etc.) stay unaffected. */
+    body, .navbar, .card, .dropdown-menu, .dropdown-item, .sidebar-widget,
+    .comment-card, .mobile-bottom-nav, .mob-nav-item, .nb-footer, .nb-footer a,
+    .form-control, .form-select, .badge-comm, .post-meta a, .post-title-link,
+    .vote-btn, .vote-score, .community-link, .member-pill, .alert,
+    .theme-toggle, .theme-toggle .toggle-thumb, .btn-portfolio,
+    .nav-link, .btn-primary, .btn-outline-primary, .btn-close {
+      transition: background-color 0.35s ease, color 0.35s ease,
+                  border-color 0.35s ease, box-shadow 0.35s ease;
+    }
     body {
       background: var(--nb-surface);
       background-image:
