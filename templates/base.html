@@ -117,7 +117,7 @@
        Scoped to color-only properties so layout/animations elsewhere
        (card hover lift, vote pulse, etc.) stay unaffected. */
     body, .navbar, .card, .dropdown-menu, .dropdown-item, .sidebar-widget,
-    .comment-card, .mobile-bottom-nav, .mob-nav-item, .nb-footer, .nb-footer a,
+    .comment-card, .mobile-bottom-nav, .nb-footer, .nb-footer a,
     .form-control, .form-select, .badge-comm, .post-meta a, .post-title-link,
     .vote-btn, .vote-score, .community-link, .member-pill, .alert,
     .theme-toggle, .theme-toggle .toggle-thumb, .btn-portfolio,
@@ -296,7 +296,7 @@
       height: 60px; align-items: center; justify-content: space-around; padding: 0 0.5rem;
     }
     @media (max-width: 991.98px) { .mobile-bottom-nav { display: flex; } }
-    .mob-nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: var(--nb-text-muted); font-size: 0.62rem; font-weight: 500; padding: 6px 10px; border-radius: 8px; transition: color 0.15s, background 0.15s; min-width: 48px; }
+    .mob-nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: var(--nb-text-muted); font-size: 0.62rem; font-weight: 500; padding: 6px 10px; border-radius: 8px; transition: color 0.15s ease, background-color 0.35s ease; min-width: 48px; }
     .mob-nav-item:hover, .mob-nav-item.active { color: var(--nb-primary-light); background: rgba(37,99,235,0.12); }
     .mob-nav-item i { font-size: 1.25rem; line-height: 1; }
     .mob-nav-fab { width: 46px; height: 46px; border-radius: 50%; background: var(--nb-accent); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; box-shadow: 0 4px 14px rgba(37,99,235,0.5); transition: background 0.15s, transform 0.15s; text-decoration: none; margin-top: -10px; }
