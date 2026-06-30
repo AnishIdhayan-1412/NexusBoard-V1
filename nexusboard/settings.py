@@ -17,7 +17,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env('DEBUG')
-ALLOWED_HOSTS = env('ALLOWED_HOSTS') + ['healthcheck.railway.app']
+ALLOWED_HOSTS = env('ALLOWED_HOSTS')  # Set ALLOWED_HOSTS env var to include all valid hosts
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -260,4 +260,5 @@ if DEBUG and not _REDIS_URL:
     RATELIMIT_USE_CACHE = 'dummy'
 
 # ── Silence ratelimit cache warning in dev (Redis handles this in prod) ───────
-SILENCED_SYSTEM_CHECKS = ['django_ratelimit.E003', 'django_ratelimit.W001']
+# Only silence ratelimit cache warnings in dev — Redis handles this in prod
+SILENCED_SYSTEM_CHECKS = ['django_ratelimit.E003', 'django_ratelimit.W001'] if DEBUG else []

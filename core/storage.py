@@ -32,7 +32,7 @@ class CloudinaryMediaStorage(Storage):
             content,
             public_id=public_id,
             overwrite=True,
-            resource_type='auto',
+            resource_type='image',
         )
         # Store the full public_id with extension info stripped
         # Return name so Django saves it in the DB field

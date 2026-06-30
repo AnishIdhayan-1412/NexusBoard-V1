@@ -9,6 +9,7 @@ from django.db import models, transaction
 from .models import Post, Comment, Vote, CommentVote
 from .forms import PostCreateForm, CommentForm
 from communities.models import Community, Membership
+from django_ratelimit.decorators import ratelimit
 
 logger = logging.getLogger('canopy')
 
@@ -95,7 +96,9 @@ def add_comment_view(request, post_pk):
             comment.author = request.user
             parent_id = request.POST.get('parent_id')
             if parent_id:
-                comment.parent = get_object_or_404(Comment, pk=parent_id)
+                # Security: validate parent belongs to THIS post to prevent
+                # cross-post comment tree injection
+                comment.parent = get_object_or_404(Comment, pk=parent_id, post=post)
             comment.save()
             # Atomically increment cached comment_count.
             # Using F() avoids a race condition where .count() could read
@@ -112,6 +115,7 @@ def add_comment_view(request, post_pk):
 
 @login_required
 @require_POST
+@ratelimit(key="user", rate="30/m", method="POST", block=True)
 def vote_post_view(request, pk):
     post = get_object_or_404(Post, pk=pk)
     try:
@@ -174,6 +178,7 @@ def delete_post_view(request, pk):
 
 @login_required
 @require_POST
+@ratelimit(key="user", rate="30/m", method="POST", block=True)
 def vote_comment_view(request, pk):
     comment = get_object_or_404(Comment, pk=pk)
     try:

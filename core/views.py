@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
+from django_ratelimit.decorators import ratelimit
 from django.db.models import Q
 from posts.models import Post
 from communities.models import Community, Membership
@@ -51,13 +52,21 @@ def home_view(request):
 def about_view(request):
     from posts.models import Post
     from accounts.models import User
+    # Use approximate ranges rather than exact counts to avoid
+    # leaking precise platform metrics to potential attackers
+    def to_range(n):
+        if n < 10: return str(n)
+        if n < 100: return f"{(n // 10) * 10}+"
+        if n < 1000: return f"{(n // 100) * 100}+"
+        return f"{(n // 1000)}k+"
     return render(request, 'core/about.html', {
-        'total_communities': Community.objects.count(),
-        'total_posts': Post.objects.count(),
-        'total_users': User.objects.filter(is_active=True).count(),
+        'total_communities': to_range(Community.objects.count()),
+        'total_posts': to_range(Post.objects.count()),
+        'total_users': to_range(User.objects.filter(is_active=True).count()),
     })
 
 
+@ratelimit(key="ip", rate="20/m", block=True)
 def search_view(request):
     query = request.GET.get('q', '').strip()
     post_page = community_page = user_page = None
